@@ -645,7 +645,7 @@ with about_tab:
     st.divider()
     st.subheader("Project Team")
     st.caption(
-        "MSc Artificial Intelligence | Human-Centred AI Project"
+        "MSc Artificial Intelligence Part 2 | Human-Centred AI Project"
     )
 
     col1, col2 = st.columns(2)
