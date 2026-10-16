@@ -667,7 +667,7 @@ with about_tab:
             "to make the HireLens dashboard clear and easy to navigate."
         )
 
-       st.caption(
+    st.caption(
         "HireLens — An Explainable AI Hiring Decision Analysis Dashboard"
     )
 
