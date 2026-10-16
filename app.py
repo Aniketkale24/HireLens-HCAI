@@ -641,8 +641,8 @@ with about_tab:
     st.write("- A separate action is required to publish the decision.")
     st.write("- Missing a skill in resume text does not prove the candidate lacks it.")
     st.write("- Scores measure textual alignment, not candidate worth or guaranteed performance.")
-    st.write(
-            st.divider()
+    
+    st.divider()
     st.subheader("Project Team")
     st.caption(
         "MSc Artificial Intelligence | Human-Centred AI Project"
