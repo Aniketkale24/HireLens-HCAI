@@ -642,6 +642,36 @@ with about_tab:
     st.write("- Missing a skill in resume text does not prove the candidate lacks it.")
     st.write("- Scores measure textual alignment, not candidate worth or guaranteed performance.")
     st.write(
-        "- This college demo uses synthetic IDs. A real system needs authentication, "
-        "authorization, data protection, and audit controls."
+            st.divider()
+    st.subheader("Project Team")
+    st.caption(
+        "MSc Artificial Intelligence | Human-Centred AI Project"
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("### Aniket Kale")
+        st.markdown("**Backend & AI Integration**")
+        st.write(
+            "Worked on backend logic, AI analysis integration, "
+            "resume processing, database integration, testing, "
+            "and deployment, with additional UI contributions."
+        )
+
+    with col2:
+        st.markdown("### Sagar Chandratre")
+        st.markdown("**Frontend & UI Design**")
+        st.write(
+            "Led the frontend interface and user-interface design "
+            "to make the HireLens dashboard clear and easy to navigate."
+        )
+
+       st.caption(
+        "HireLens — An Explainable AI Hiring Decision Analysis Dashboard"
+    )
+
+    st.write(
+        "This college demo uses synthetic IDs. A real system needs "
+        "authentication, authorization, data protection, and audit controls."
     )
