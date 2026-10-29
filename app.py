@@ -127,6 +127,34 @@ st.markdown("""
     font-size:.85rem;
     font-weight:650;
 }
+
+/* Fix readability of typed text and placeholder text in Streamlit fields */
+.stTextArea textarea,
+[data-testid="stTextArea"] textarea,
+.stTextInput input,
+[data-testid="stTextInput"] input,
+.stNumberInput input {
+    color: #1f2937 !important;
+    background-color: #ffffff !important;
+    -webkit-text-fill-color: #1f2937 !important;
+    opacity: 1 !important;
+}
+
+.stTextArea textarea::placeholder,
+[data-testid="stTextArea"] textarea::placeholder,
+.stTextInput input::placeholder,
+[data-testid="stTextInput"] input::placeholder {
+    color: #6b7280 !important;
+    -webkit-text-fill-color: #6b7280 !important;
+    opacity: 1 !important;
+}
+
+.stTextArea label,
+[data-testid="stTextArea"] label,
+.stTextInput label,
+[data-testid="stTextInput"] label {
+    color: #e5e7eb !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
