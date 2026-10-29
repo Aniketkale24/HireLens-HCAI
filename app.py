@@ -203,6 +203,44 @@ def get_records():
             return []
 
 
+def get_candidate_job_matches(user_id):
+    """Return saved-job matches linked to this candidate's own account."""
+    if not Path(DB_PATH).exists():
+        return []
+
+    try:
+        with sqlite3.connect(DB_PATH) as con:
+            con.row_factory = sqlite3.Row
+            rows = con.execute("""
+                SELECT
+                    jm.id AS match_id,
+                    jm.job_id,
+                    jm.match_score,
+                    jm.skill_score,
+                    jm.text_similarity,
+                    jm.matched_skills,
+                    jm.missing_skills,
+                    jm.ai_recommendation,
+                    jm.hr_decision,
+                    jm.hr_feedback,
+                    jm.published,
+                    jm.created_at AS matched_at,
+                    j.title AS job_title,
+                    j.description AS job_description,
+                    c.application_id,
+                    c.created_at AS submitted_at
+                FROM job_matches jm
+                JOIN candidates c ON c.id = jm.source_candidate_id
+                JOIN jobs j ON j.id = jm.job_id
+                WHERE c.applicant_user_id = ?
+                ORDER BY jm.id DESC
+            """, (user_id,)).fetchall()
+            return [dict(row) for row in rows]
+    except sqlite3.OperationalError:
+        # Safe fallback if the database has not yet been migrated.
+        return []
+
+
 def job_form(key):
     with st.form(f"{key}_job_form"):
         title = st.text_input(
@@ -501,11 +539,7 @@ def candidate_page(user):
 
     st.title("Your Candidate Dashboard")
 
-    upload_tab, apps_tab, about_tab = st.tabs([
-        "Upload Resume",
-        "My Applications",
-        "About"
-    ])
+    upload_tab, apps_tab = st.tabs(["Upload Resume", "My Applications"])
 
     with upload_tab:
         st.write(
@@ -534,6 +568,7 @@ def candidate_page(user):
             )
 
     with apps_tab:
+        st.subheader("Applications you submitted")
         apps = get_candidate_applications(user["id"])
 
         if not apps:
@@ -545,30 +580,61 @@ def candidate_page(user):
                 st.write(f'**Application ID:** `{app["application_id"]}`')
                 st.write(f'**Submitted:** {app["created_at"]}')
                 st.metric(
-                    "Match score",
+                    "Initial match score",
                     f'{float(app["match_score"]):.1f}/100'
                 )
 
-                if app["published"]:
-                    st.success(
-                        f'Published decision: {app["hr_decision"]}'
-                    )
+                # Legacy application decisions remain supported.
+                if app.get("published"):
+                    st.success(f'Published HR decision: {app["hr_decision"]}')
                     if app.get("hr_feedback"):
-                        st.write(f'**HR feedback:** {app["hr_feedback"]}')
-                elif app["hr_decision"]:
-                    st.info(
-                        "HR has saved a decision, but has not published it."
-                    )
+                        st.write(f'**Feedback from HR:** {app["hr_feedback"]}')
+                elif app.get("hr_decision"):
+                    st.info("HR has saved a decision but has not published it yet.")
                 else:
-                    st.info(
-                        "Application submitted. No decision published yet."
-                    )
+                    st.info("No decision has been published for this application yet.")
 
-    with about_tab:
-        st.info(
-            "AI scores are advisory and do not measure a candidate's "
-            "worth or guarantee job performance."
-        )
+        st.divider()
+        st.subheader("Job-specific matching results and HR decisions")
+        job_matches = get_candidate_job_matches(user["id"])
+
+        if not job_matches:
+            st.info(
+                "No job-specific matching results are available yet. "
+                "HR must match your resume against a saved job."
+            )
+
+        for match in job_matches:
+            with st.container(border=True):
+                st.subheader(match["job_title"])
+                if match.get("application_id"):
+                    st.write(f'**Application ID:** `{match["application_id"]}`')
+                st.metric(
+                    "Match score",
+                    f'{float(match.get("match_score") or 0):.1f}/100'
+                )
+                st.write(f'**AI recommendation:** {match.get("ai_recommendation") or "Not available"}')
+                st.write("**Matched skills:**", match.get("matched_skills") or "None detected")
+                st.write("**Skills not detected:**", match.get("missing_skills") or "None detected")
+
+                if match.get("published"):
+                    decision = match.get("hr_decision") or "Decision published"
+                    if decision == "Shortlist":
+                        st.success(f"Published HR decision: {decision}")
+                    elif decision == "Reject":
+                        st.error(f"Published HR decision: {decision}")
+                    else:
+                        st.info(f"Published HR decision: {decision}")
+                    if match.get("hr_feedback"):
+                        st.write(f'**Feedback from HR:** {match["hr_feedback"]}')
+                elif match.get("hr_decision"):
+                    st.info("HR has saved a decision, but it has not been published yet.")
+                else:
+                    st.info("HR has not published a decision for this job yet.")
+
+                st.caption(
+                    "AI scores are advisory. The hiring decision is made by HR."
+                )
 
 
 # --------------------------------------------------
@@ -853,66 +919,10 @@ def job_requirements_tab(user):
                     except Exception as exc:
                         st.error(f"Could not generate explanation: {exc}")
 
-            with st.form(f"job_match_decision_{match['match_id']}"):
-                options = ["Shortlist", "Reject", "Hold"]
-                previous = match["hr_decision"]
-
-                decision = st.radio(
-                    "HR final decision",
-                    options,
-                    horizontal=True,
-                    index=(
-                        options.index(previous)
-                        if previous in options else 2
-                    ),
-                    key=f"decision_value_{match['match_id']}"
-                )
-
-                feedback = st.text_area(
-                    "Feedback for candidate",
-                    value=match["hr_feedback"] or "",
-                    key=f"feedback_value_{match['match_id']}"
-                )
-
-                save_decision = st.form_submit_button(
-                    "Save HR Decision",
-                    type="primary"
-                )
-
-            if save_decision:
-                try:
-                    record_job_match_decision(
-                        match["match_id"],
-                        decision,
-                        feedback
-                    )
-                    st.success(
-                        "HR decision saved. It is not published yet."
-                    )
-                    st.rerun()
-                except Exception as exc:
-                    st.error(f"Could not save decision: {exc}")
-
-            latest = next(
-                (
-                    item for item in get_job_matches(job_id)
-                    if item["match_id"] == match["match_id"]
-                ),
-                None
+            st.caption(
+                "Use the HR Decisions section in the sidebar to save and publish "
+                "the final human decision for this match."
             )
-
-            if latest and latest["hr_decision"] and not latest["published"]:
-                if st.button(
-                    "Publish Decision to Candidate",
-                    key=f"publish_job_match_{match['match_id']}",
-                    use_container_width=True
-                ):
-                    try:
-                        publish_job_match_decision(match["match_id"])
-                        st.success("Decision published.")
-                        st.rerun()
-                    except Exception as exc:
-                        st.error(f"Could not publish decision: {exc}")
 
 
 # --------------------------------------------------
@@ -1175,6 +1185,105 @@ def existing_decisions_tab():
         st.success("Decision is published.")
 
 
+def job_match_decisions_page():
+    st.subheader("Job-specific HR decisions")
+    st.write(
+        "Review each resume match, record the human HR decision, and publish "
+        "the decision and feedback to the candidate."
+    )
+
+    jobs = get_jobs()
+    if not jobs:
+        st.info("Create and save a job first, then run matching in Job Requirements.")
+    else:
+        any_matches = False
+        for job_item in jobs:
+            matches = get_job_matches(job_item["id"])
+            if not matches:
+                continue
+            any_matches = True
+            with st.expander(f'{job_item["title"]} · Job #{job_item["id"]}', expanded=True):
+                for match in matches:
+                    any_matches = True
+                    candidate_name = match.get("candidate_name") or "Candidate"
+                    app_id = match.get("source_application_id") or "ID unavailable"
+                    with st.container(border=True):
+                        st.markdown(f'### {candidate_name}')
+                        st.write(f'**Application ID:** `{app_id}`')
+                        st.write(f'**AI recommendation:** {match.get("ai_recommendation") or "Not available"}')
+                        st.write(
+                            f'**Match score:** {float(match.get("match_score") or 0):.1f}/100 '
+                            f' · **Skill coverage:** {float(match.get("skill_score") or 0):.1f}%'
+                        )
+                        if match.get("published"):
+                            st.success(f'Decision published: {match.get("hr_decision") or "Not specified"}')
+                        elif match.get("hr_decision"):
+                            st.info(f'Decision saved, not published: {match["hr_decision"]}')
+                        else:
+                            st.info("No HR decision saved yet.")
+
+                        with st.expander("Review resume and matched skills"):
+                            resume = get_job_match_resume(match["match_id"])
+                            if resume:
+                                st.download_button(
+                                    "Download original resume",
+                                    data=resume["resume_pdf"],
+                                    file_name=resume.get("resume_filename") or f"{app_id}.pdf",
+                                    mime="application/pdf",
+                                    key=f"decision_download_{match['match_id']}"
+                                )
+                            st.write("**Matched skills:**", match.get("matched_skills") or "None detected")
+                            st.write("**Skills not detected:**", match.get("missing_skills") or "None detected")
+
+                        with st.form(f"decision_page_form_{match['match_id']}"):
+                            options = ["Shortlist", "Reject", "Hold"]
+                            previous = match.get("hr_decision")
+                            decision = st.radio(
+                                "HR final decision",
+                                options,
+                                horizontal=True,
+                                index=options.index(previous) if previous in options else 2,
+                                key=f"decision_page_value_{match['match_id']}"
+                            )
+                            feedback = st.text_area(
+                                "Feedback for candidate",
+                                value=match.get("hr_feedback") or "",
+                                key=f"decision_page_feedback_{match['match_id']}"
+                            )
+                            save_decision = st.form_submit_button(
+                                "Save HR Decision",
+                                type="primary"
+                            )
+
+                        if save_decision:
+                            try:
+                                record_job_match_decision(match["match_id"], decision, feedback)
+                                st.success("HR decision saved. Publish it when ready.")
+                                st.rerun()
+                            except Exception as exc:
+                                st.error(f"Could not save decision: {exc}")
+
+                        if match.get("hr_decision") and not match.get("published"):
+                            if st.button(
+                                "Publish Decision to Candidate",
+                                key=f"decision_page_publish_{match['match_id']}",
+                                use_container_width=True
+                            ):
+                                try:
+                                    publish_job_match_decision(match["match_id"])
+                                    st.success("Decision published to the candidate portal.")
+                                    st.rerun()
+                                except Exception as exc:
+                                    st.error(f"Could not publish decision: {exc}")
+
+        if not any_matches:
+            st.info("No job matches yet. Run matching from Job Requirements first.")
+
+    st.divider()
+    with st.expander("Legacy application decisions"):
+        existing_decisions_tab()
+
+
 # --------------------------------------------------
 # HR DASHBOARD
 # --------------------------------------------------
@@ -1185,23 +1294,26 @@ def hr_page(user):
     st.sidebar.title("HR / Recruiter")
     st.sidebar.write(f"Signed in as **{user['full_name']}**")
     st.sidebar.caption("Authorized HR account")
+    st.sidebar.divider()
+    section = st.sidebar.radio(
+        "Navigation",
+        [
+            "Overview",
+            "Job Requirements",
+            "Upload Resumes",
+            "Search Application ID",
+            "HR Decisions",
+            "About",
+        ],
+        key="hr_sidebar_navigation"
+    )
     logout()
 
     st.title("HR / Recruiter Dashboard")
 
-    overview, requirements, upload, search, decisions, about = st.tabs([
-        "Overview",
-        "Job Requirements",
-        "Upload Resumes",
-        "Search Application ID",
-        "HR Decisions",
-        "About"
-    ])
-
-    with overview:
+    if section == "Overview":
         rows = get_records()
         jobs = get_jobs()
-
         c1, c2, c3 = st.columns(3)
         c1.metric("Stored resume records", len(rows))
         c2.metric("Saved jobs", len(jobs))
@@ -1209,47 +1321,41 @@ def hr_page(user):
             "Awaiting decision",
             sum(1 for r in rows if not r["hr_decision"])
         )
-
         st.info(
             "AI recommendations are advisory. HR retains the final decision. "
-            "Use Job Requirements to match all stored resumes against a job."
+            "Use Job Requirements to match saved resumes against a job, then "
+            "use HR Decisions to save and publish human decisions."
         )
 
-    with requirements:
+    elif section == "Job Requirements":
         job_requirements_tab(user)
 
-    with upload:
+    elif section == "Upload Resumes":
         hr_upload_tab()
 
-    with search:
+    elif section == "Search Application ID":
         application_search_tab()
 
-    with decisions:
-        existing_decisions_tab()
+    elif section == "HR Decisions":
+        job_match_decisions_page()
 
-    with about:
+    elif section == "About":
         st.subheader("Responsible-use principles")
         st.write(
             "- AI recommendations are advisory; HR makes the final decision."
         )
         st.write(
-            "- A skill not detected in a resume does not prove the "
-            "candidate lacks it."
+            "- A skill not detected in a resume does not prove the candidate lacks it."
         )
         st.write(
-            "- Scores measure textual alignment, not candidate worth "
-            "or guaranteed job performance."
+            "- Scores measure textual alignment, not candidate worth or guaranteed job performance."
         )
-
         st.divider()
         st.subheader("Project Team")
-
         left, right = st.columns(2)
-
         with left:
             st.markdown("### Aniket Kale")
             st.write("Backend & AI Integration")
-
         with right:
             st.markdown("### Sagar Chandratre")
             st.write("Frontend & UI Design")
