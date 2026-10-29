@@ -128,33 +128,38 @@ st.markdown("""
     font-weight:650;
 }
 
-/* Fix readability of typed text and placeholder text in Streamlit fields */
+
+/* --------------------------------------------------
+   FIX: readable text in job descriptions and form fields
+   Applies to both candidate and HR portals.
+-------------------------------------------------- */
 .stTextArea textarea,
-[data-testid="stTextArea"] textarea,
 .stTextInput input,
-[data-testid="stTextInput"] input,
-.stNumberInput input {
-    color: #1f2937 !important;
+.stNumberInput input,
+[data-baseweb="input"] input,
+[data-baseweb="textarea"] textarea {
+    color: #172033 !important;
+    -webkit-text-fill-color: #172033 !important;
     background-color: #ffffff !important;
-    -webkit-text-fill-color: #1f2937 !important;
     opacity: 1 !important;
+    caret-color: #172033 !important;
 }
 
 .stTextArea textarea::placeholder,
-[data-testid="stTextArea"] textarea::placeholder,
 .stTextInput input::placeholder,
-[data-testid="stTextInput"] input::placeholder {
-    color: #6b7280 !important;
-    -webkit-text-fill-color: #6b7280 !important;
+[data-baseweb="textarea"] textarea::placeholder,
+[data-baseweb="input"] input::placeholder {
+    color: #64748b !important;
+    -webkit-text-fill-color: #64748b !important;
     opacity: 1 !important;
 }
 
 .stTextArea label,
-[data-testid="stTextArea"] label,
 .stTextInput label,
-[data-testid="stTextInput"] label {
-    color: #e5e7eb !important;
+.stNumberInput label {
+    color: #e8eef7 !important;
 }
+
 </style>
 """, unsafe_allow_html=True)
 
