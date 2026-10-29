@@ -1071,12 +1071,8 @@ def application_search_tab():
     st.write(f'**Candidate:** {record.get("candidate_name") or record["candidate_id"]}')
     st.write(f'**Application ID:** `{record["application_id"]}`')
     st.write(f'**Original job title:** {record["job_title"]}')
-    c1, c2 = st.columns(2)
-    c1.metric("Initial match score", f'{float(record.get("match_score") or 0):.1f}/100')
-    c2.metric("Skill coverage", f'{float(record.get("skill_score") or 0):.1f}%')
-    st.write("**Matched skills:**", record.get("matched_skills") or "None detected")
-    st.write("**Skills not detected:**", record.get("missing_skills") or "None detected")
-    st.write("**AI recommendation:**", record.get("ai_recommendation") or "Not available")
+    # Keep this section focused on the application identity and original PDF.
+    # Scores and skill details are shown once per saved-job match below.
 
     resume = get_application_resume(record["id"])
     if resume:
@@ -1146,7 +1142,21 @@ def application_search_tab():
                 saved_detail = st.session_state.get(f"explanation_{match['match_id']}")
                 if saved_detail:
                     with st.expander("Detailed AI explanation", expanded=True):
-                        show_result(saved_detail)
+                        st.write("**Explanation**")
+                        reasons = saved_detail.get("reasons", [])
+                        if reasons:
+                            for reason in reasons:
+                                st.write(f"- {reason}")
+                        else:
+                            st.info(
+                                "The analysis engine did not return separate "
+                                "explanation reasons."
+                            )
+                        st.caption(
+                            "This explanation describes textual alignment only. "
+                            "It does not measure candidate worth or guarantee job "
+                            "performance. HR makes the final decision."
+                        )
     else:
         st.info("This application has not been matched against any saved HR job yet.")
 
