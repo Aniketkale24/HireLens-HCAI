@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import hashlib
 from pathlib import Path
 
 import streamlit as st
@@ -543,6 +544,100 @@ def login_page():
 # CANDIDATE PORTAL
 # --------------------------------------------------
 
+@st.fragment(run_every="5s")
+def render_candidate_applications(user_id):
+    """Refresh only the candidate's application list periodically."""
+    st.subheader("Applications you submitted")
+    apps = get_candidate_applications(user_id)
+    job_matches = get_candidate_job_matches(user_id)
+
+    matches_by_app = {}
+    for match in job_matches:
+        app_id = match.get("application_id")
+        if app_id:
+            matches_by_app.setdefault(app_id, []).append(match)
+
+    if not apps:
+        st.info(
+            "You have no applications yet. Applications uploaded independently "
+            "by HR are not shown here."
+        )
+        return
+
+    for app in apps:
+        app_id = app.get("application_id")
+        matching_results = matches_by_app.get(app_id, [])
+        with st.container(border=True):
+            st.subheader(app["job_title"])
+            st.write(f'**Application ID:** `{app_id}`')
+            st.write(f'**Submitted:** {app["created_at"]}')
+
+            if matching_results:
+                # Show all job-specific matches inside the source application,
+                # never create another application card for each match.
+                for match in matching_results:
+                    st.divider()
+                    st.markdown(f'**HR matching job:** {match["job_title"]}')
+                    c1, c2 = st.columns(2)
+                    c1.metric(
+                        "Match score",
+                        f'{float(match.get("match_score") or 0):.1f}/100'
+                    )
+                    c2.metric(
+                        "Skill coverage",
+                        f'{float(match.get("skill_score") or 0):.1f}%'
+                    )
+                    st.write(
+                        f'**AI recommendation:** '
+                        f'{match.get("ai_recommendation") or "Not available"}'
+                    )
+                    st.write(
+                        "**Matched skills:**",
+                        match.get("matched_skills") or "None detected"
+                    )
+                    st.write(
+                        "**Skills not detected:**",
+                        match.get("missing_skills") or "None detected"
+                    )
+                    if match.get("published") and match.get("hr_decision"):
+                        decision = match["hr_decision"]
+                        if decision == "Shortlist":
+                            st.success(f"Published HR decision: {decision}")
+                        elif decision == "Reject":
+                            st.error(f"Published HR decision: {decision}")
+                        else:
+                            st.info(f"Published HR decision: {decision}")
+                        if match.get("hr_feedback"):
+                            st.write(f'**Feedback from HR:** {match["hr_feedback"]}')
+                    elif match.get("hr_decision"):
+                        st.info(
+                            "HR has saved a decision, but it has not been published yet."
+                        )
+                    else:
+                        st.info("HR has not published a decision for this job yet.")
+            else:
+                st.metric(
+                    "Initial match score",
+                    f'{float(app.get("match_score") or 0):.1f}/100'
+                )
+                if app.get("published") and app.get("hr_decision"):
+                    decision = app["hr_decision"]
+                    if decision == "Shortlist":
+                        st.success(f"Published HR decision: {decision}")
+                    elif decision == "Reject":
+                        st.error(f"Published HR decision: {decision}")
+                    else:
+                        st.info(f"Published HR decision: {decision}")
+                    if app.get("hr_feedback"):
+                        st.write(f'**Feedback from HR:** {app["hr_feedback"]}')
+                elif app.get("hr_decision"):
+                    st.info("HR has saved a decision, but it has not been published yet.")
+                else:
+                    st.info("No decision has been published for this application yet.")
+
+            st.caption("AI scores are advisory. The hiring decision is made by HR.")
+
+
 def candidate_page(user):
     brand()
     st.sidebar.title("Candidate Portal")
@@ -565,71 +660,7 @@ def candidate_page(user):
             submit_resumes(files, job, owner_id=user["id"], owner_name=user["full_name"])
 
     with apps_tab:
-        st.subheader("Applications you submitted")
-        apps = get_candidate_applications(user["id"])
-        job_matches = get_candidate_job_matches(user["id"])
-
-        matches_by_app = {}
-        for match in job_matches:
-            app_id = match.get("application_id")
-            if app_id:
-                matches_by_app.setdefault(app_id, []).append(match)
-
-        if not apps:
-            st.info("You have no applications yet. Applications uploaded independently by HR are not shown here.")
-
-        for app in apps:
-            app_id = app.get("application_id")
-            matching_results = matches_by_app.get(app_id, [])
-            with st.container(border=True):
-                st.subheader(app["job_title"])
-                st.write(f'**Application ID:** `{app_id}`')
-                st.write(f'**Submitted:** {app["created_at"]}')
-
-                if matching_results:
-                    # Show job-specific matches inside this application rather
-                    # than duplicating the application in a second section.
-                    for match in matching_results:
-                        st.divider()
-                        st.markdown(f'**HR matching job:** {match["job_title"]}')
-                        c1, c2 = st.columns(2)
-                        c1.metric("Match score", f'{float(match.get("match_score") or 0):.1f}/100')
-                        c2.metric("Skill coverage", f'{float(match.get("skill_score") or 0):.1f}%')
-                        st.write(f'**AI recommendation:** {match.get("ai_recommendation") or "Not available"}')
-                        st.write("**Matched skills:**", match.get("matched_skills") or "None detected")
-                        st.write("**Skills not detected:**", match.get("missing_skills") or "None detected")
-                        if match.get("published") and match.get("hr_decision"):
-                            decision = match["hr_decision"]
-                            if decision == "Shortlist":
-                                st.success(f"Published HR decision: {decision}")
-                            elif decision == "Reject":
-                                st.error(f"Published HR decision: {decision}")
-                            else:
-                                st.info(f"Published HR decision: {decision}")
-                            if match.get("hr_feedback"):
-                                st.write(f'**Feedback from HR:** {match["hr_feedback"]}')
-                        elif match.get("hr_decision"):
-                            st.info("HR has saved a decision, but it has not been published yet.")
-                        else:
-                            st.info("HR has not published a decision for this job yet.")
-                else:
-                    st.metric("Initial match score", f'{float(app.get("match_score") or 0):.1f}/100')
-                    if app.get("published") and app.get("hr_decision"):
-                        decision = app["hr_decision"]
-                        if decision == "Shortlist":
-                            st.success(f"Published HR decision: {decision}")
-                        elif decision == "Reject":
-                            st.error(f"Published HR decision: {decision}")
-                        else:
-                            st.info(f"Published HR decision: {decision}")
-                        if app.get("hr_feedback"):
-                            st.write(f'**Feedback from HR:** {app["hr_feedback"]}')
-                    elif app.get("hr_decision"):
-                        st.info("HR has saved a decision, but it has not been published yet.")
-                    else:
-                        st.info("No decision has been published for this application yet.")
-
-                st.caption("AI scores are advisory. The hiring decision is made by HR.")
+        render_candidate_applications(user["id"])
 
 
 def job_requirements_tab(user):
@@ -865,111 +896,148 @@ def job_requirements_tab(user):
 
 def hr_upload_tab():
     st.subheader("Upload resumes to the candidate pool")
-
     st.write(
         "Upload PDFs here to make them available for matching against "
         "any saved job. You do not need to enter job requirements here."
     )
-
     st.info(
-        "These uploads are stored with a generated application ID. "
-        "Their matching scores are calculated when you run a saved job."
+        "These are HR-managed resume-pool records, not candidate-owned applications. "
+        "They will not appear in a candidate's personal portal unless the candidate "
+        "submits their own application."
     )
 
-    files = st.file_uploader(
+    staged = st.session_state.setdefault("staged_hr_resumes", {})
+    newly_uploaded = st.file_uploader(
         "Upload candidate PDF resume(s)",
         type=["pdf"],
         accept_multiple_files=True,
         key="hr_pdfs"
     )
 
-    if files:
-        for pdf in files:
-            st.text_input(
-                f"Candidate name for {pdf.name}",
-                value=Path(pdf.name).stem,
-                key=f"name_{pdf.name}"
-            )
-
-    if st.button(
-        "Save Resumes to Pool",
-        type="primary",
-        use_container_width=True
-    ):
-        if not files:
-            st.error("Please upload at least one PDF resume.")
-            return
-
-        success = 0
-
-        for pdf in files:
-            try:
-                name = (
-                    st.session_state.get(f"name_{pdf.name}", "").strip()
-                    or Path(pdf.name).stem
-                )
-
-                pdf_bytes = pdf.getvalue()
-                # Avoid saving the same HR-pool PDF repeatedly under the same name.
-                with sqlite3.connect(DB_PATH) as con:
-                    con.row_factory = sqlite3.Row
-                    existing = con.execute("""
-                        SELECT application_id FROM candidates
-                        WHERE applicant_user_id IS NULL
-                          AND candidate_name = ?
-                          AND resume_filename = ?
-                          AND resume_pdf = ?
-                        ORDER BY id DESC LIMIT 1
-                    """, (name, pdf.name, sqlite3.Binary(pdf_bytes))).fetchone()
-                if existing:
-                    st.info(f"{name} is already in the HR resume pool. Existing ID: {existing['application_id']}")
-                    continue
-
-                # The current candidates schema requires non-null analysis
-                # fields. These values are explicitly placeholders only.
-                placeholder_result = {
-                    "match_score": 0,
-                    "skill_score": 0,
-                    "text_similarity": 0,
-                    "matched_skills": [],
-                    "missing_skills": [],
-                    "recommendation": (
-                        "Not analyzed yet. Run matching against a saved job."
-                    ),
+    # Copy uploads into session state immediately so switching sidebar sections
+    # does not discard unsaved PDFs when Streamlit removes the uploader widget.
+    if newly_uploaded:
+        for pdf in newly_uploaded:
+            pdf_bytes = pdf.getvalue()
+            digest = hashlib.sha256(pdf_bytes).hexdigest()
+            staged_key = f"{pdf.name}:{digest}"
+            if staged_key not in staged:
+                staged[staged_key] = {
+                    "filename": pdf.name,
+                    "bytes": pdf_bytes,
+                    "digest": digest,
+                    "name": Path(pdf.name).stem,
                 }
 
-                record_id = save_analysis(
-                    name,
-                    "Resume Pool — Not Yet Matched",
-                    placeholder_result,
-                    applicant_user_id=None,
-                    candidate_name=name,
-                    resume_pdf=pdf_bytes,
-                    resume_filename=pdf.name,
+    if staged:
+        st.subheader(f"Pending uploads ({len(staged)})")
+        st.caption(
+            "Pending files stay available while you navigate between HR sections "
+            "in this session. Save them to the database before closing or refreshing the app."
+        )
+        for staged_key, item in list(staged.items()):
+            col_name, col_file, col_remove = st.columns([3, 2, 1])
+            with col_name:
+                item["name"] = st.text_input(
+                    f"Candidate name · {item['filename']}",
+                    value=item.get("name") or Path(item["filename"]).stem,
+                    key=f"staged_name_{item['digest']}"
                 )
+            with col_file:
+                st.caption(item["filename"])
+            with col_remove:
+                if st.button("Remove", key=f"remove_staged_{item['digest']}"):
+                    staged.pop(staged_key, None)
+                    st.rerun()
 
-                with sqlite3.connect(DB_PATH) as con:
-                    row = con.execute(
-                        "SELECT application_id FROM candidates WHERE id = ?",
-                        (record_id,)
-                    ).fetchone()
+        if st.button(
+            "Save Pending Resumes to Pool",
+            type="primary",
+            use_container_width=True
+        ):
+            success = 0
+            skipped = 0
+            errors = []
 
-                st.success(
-                    f"Saved {name} · Application ID: {row[0]}"
-                )
-                success += 1
+            for staged_key, item in list(staged.items()):
+                try:
+                    name = (
+                        st.session_state.get(
+                            f"staged_name_{item['digest']}",
+                            item.get("name", "")
+                        ).strip()
+                        or Path(item["filename"]).stem
+                    )
+                    pdf_bytes = item["bytes"]
 
-            except Exception as exc:
-                st.error(
-                    f"Could not save {pdf.name}: "
-                    f"{type(exc).__name__}: {exc}"
-                )
+                    with sqlite3.connect(DB_PATH) as con:
+                        con.row_factory = sqlite3.Row
+                        existing = con.execute("""
+                            SELECT application_id FROM candidates
+                            WHERE applicant_user_id IS NULL
+                              AND candidate_name = ?
+                              AND resume_filename = ?
+                              AND resume_pdf = ?
+                            ORDER BY id DESC LIMIT 1
+                        """, (
+                            name, item["filename"], sqlite3.Binary(pdf_bytes)
+                        )).fetchone()
 
-        if success:
-            st.info(
-                f"{success} resume(s) added to the pool. "
-                "Open Job & Matching and run matching."
-            )
+                    if existing:
+                        st.info(
+                            f"{name} is already in the HR resume pool. "
+                            f"Existing ID: {existing['application_id']}"
+                        )
+                        skipped += 1
+                        staged.pop(staged_key, None)
+                        continue
+
+                    placeholder_result = {
+                        "match_score": 0,
+                        "skill_score": 0,
+                        "text_similarity": 0,
+                        "matched_skills": [],
+                        "missing_skills": [],
+                        "recommendation": (
+                            "Not analyzed yet. Run matching against a saved job."
+                        ),
+                    }
+
+                    record_id = save_analysis(
+                        name,
+                        "Resume Pool — Not Yet Matched",
+                        placeholder_result,
+                        applicant_user_id=None,
+                        candidate_name=name,
+                        resume_pdf=pdf_bytes,
+                        resume_filename=item["filename"],
+                    )
+
+                    with sqlite3.connect(DB_PATH) as con:
+                        row = con.execute(
+                            "SELECT application_id FROM candidates WHERE id = ?",
+                            (record_id,)
+                        ).fetchone()
+
+                    st.success(f"Saved {name} · Application ID: {row[0]}")
+                    success += 1
+                    staged.pop(staged_key, None)
+
+                except Exception as exc:
+                    errors.append(
+                        f"{item['filename']}: {type(exc).__name__}: {exc}"
+                    )
+
+            for error in errors:
+                st.error(f"Could not save {error}")
+
+            if success:
+                st.success(f"{success} resume(s) saved to the HR pool.")
+            if skipped:
+                st.info(f"{skipped} duplicate resume(s) skipped.")
+            st.rerun()
+    else:
+        st.caption("No pending uploads.")
 
 
 # --------------------------------------------------
@@ -1057,24 +1125,28 @@ def application_search_tab():
                     st.info("No HR decision has been saved for this job match yet.")
 
                 source_resume = get_job_match_resume(match["match_id"])
-                if source_resume:
-                    st.download_button(
-                        "Download resume for this match",
-                        data=source_resume["resume_pdf"],
-                        file_name=source_resume.get("resume_filename") or f"{found}.pdf",
-                        mime="application/pdf",
-                        key=f"search_match_download_{match['match_id']}"
-                    )
-                    if st.button("Generate detailed AI explanation", key=f"search_explain_{match['match_id']}"):
-                        try:
-                            detail = analyze_resume_pdf(
-                                source_resume["resume_pdf"],
-                                match["job_description"],
-                                [x.strip() for x in (match.get("required_skills") or "").split(",") if x.strip()]
-                            )
-                            show_result(detail)
-                        except Exception as exc:
-                            st.error(f"Could not generate explanation: {exc}")
+                if source_resume and st.button(
+                    "Generate detailed AI explanation",
+                    key=f"search_explain_{match['match_id']}"
+                ):
+                    try:
+                        detail = analyze_resume_pdf(
+                            source_resume["resume_pdf"],
+                            match["job_description"],
+                            [
+                                x.strip()
+                                for x in (match.get("required_skills") or "").split(",")
+                                if x.strip()
+                            ]
+                        )
+                        st.session_state[f"explanation_{match['match_id']}"] = detail
+                    except Exception as exc:
+                        st.error(f"Could not generate explanation: {exc}")
+
+                saved_detail = st.session_state.get(f"explanation_{match['match_id']}")
+                if saved_detail:
+                    with st.expander("Detailed AI explanation", expanded=True):
+                        show_result(saved_detail)
     else:
         st.info("This application has not been matched against any saved HR job yet.")
 
