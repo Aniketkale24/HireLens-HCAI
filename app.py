@@ -117,6 +117,32 @@ st.markdown("""
 .hl-chart-value { color:#18243b; font-weight:800; text-align:right; }
 [data-testid="stSidebar"] .stButton > button { min-height:3rem !important; }
 @media (max-width:650px) { .hl-chart-row { grid-template-columns:120px minmax(50px,1fr) 30px; gap:8px; } }
+
+/* Purposeful hero banner: fills the previously empty right side. */
+.hl-hero { display:flex; align-items:center; justify-content:space-between; gap:2rem; min-height:190px; overflow:hidden; }
+.hl-hero-copy { flex:1 1 58%; min-width:0; position:relative; z-index:1; }
+.hl-hero-side { flex:0 1 36%; min-width:260px; min-height:145px; padding:1rem 1.2rem; border-radius:17px; border:1px solid rgba(111,91,220,.14); background:linear-gradient(135deg,rgba(255,255,255,.82),rgba(231,246,248,.88)); position:relative; overflow:hidden; }
+.hl-hero-side:after { content:""; position:absolute; width:170px; height:170px; border:1px solid rgba(112,87,232,.15); border-radius:50%; right:-45px; top:-75px; box-shadow:0 0 0 18px rgba(112,87,232,.035),0 0 0 38px rgba(112,87,232,.025); }
+.hl-hero-orbit { width:36px; height:36px; border-radius:12px; display:flex; align-items:center; justify-content:center; gap:2px; background:#eeeaff; color:#6652d5; font-size:1rem; margin-bottom:.55rem; }
+.hl-hero-orbit span { font-size:.7rem; }
+.hl-hero-side-title { color:#1b2943; font-size:1.12rem; line-height:1.25; font-weight:850; letter-spacing:-.025em; }
+.hl-hero-side-sub { color:#617087; font-size:.78rem; margin-top:.35rem; max-width:300px; line-height:1.45; }
+.hl-hero-pills { display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.7rem; }
+.hl-hero-pills span { color:#5547a9; background:#f0edff; border:1px solid #e1dcff; padding:.22rem .48rem; border-radius:999px; font-size:.66rem; font-weight:800; }
+.hl-sidebar-brand { display:flex; align-items:center; gap:.7rem; padding:.25rem .15rem 1.1rem; margin-bottom:1rem; border-bottom:1px solid rgba(255,255,255,.13); }
+.hl-sidebar-brand-mark { width:42px; height:42px; display:flex; align-items:center; justify-content:center; border-radius:13px; background:rgba(255,255,255,.13); font-size:1.5rem; }
+.hl-sidebar-brand-name { color:#fff; font-size:1.35rem; line-height:1.1; font-weight:900; letter-spacing:-.04em; }
+.hl-sidebar-brand-name span { color:#b8aaff; }
+.hl-sidebar-brand-tag { color:#b8c5df; font-size:.58rem; font-weight:800; letter-spacing:.13em; margin-top:.22rem; }
+.hl-sidebar-user { display:flex; align-items:center; gap:.7rem; padding:.85rem .75rem; margin:.1rem 0 1.1rem; border:1px solid rgba(255,255,255,.13); border-radius:14px; background:rgba(255,255,255,.075); }
+.hl-sidebar-avatar { width:39px; height:39px; flex:0 0 39px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:linear-gradient(135deg,#8b78ff,#5b50cf); color:#fff; font-weight:850; font-size:.82rem; }
+.hl-sidebar-user-copy { min-width:0; }
+.hl-sidebar-user-role { color:#d9e1f3; font-size:.68rem; font-weight:750; }
+.hl-sidebar-user-name { color:#fff; font-size:.9rem; font-weight:850; overflow-wrap:anywhere; }
+.hl-sidebar-user-status { color:#b9c8dc; font-size:.65rem; margin-top:.2rem; }
+.hl-sidebar-user-status i { display:inline-block; width:7px; height:7px; border-radius:50%; background:#54d6a1; margin-right:.3rem; }
+.hl-sidebar-section-label { color:#aebdd6; font-size:.66rem; font-weight:850; letter-spacing:.15em; margin:.15rem 0 .45rem .15rem; }
+@media (max-width: 900px) { .hl-hero { display:block; } .hl-hero-side { min-width:0; margin-top:1rem; } }
 </style>
 """, unsafe_allow_html=True)
 
@@ -127,9 +153,40 @@ st.markdown("""
 def brand():
     st.markdown("""
     <div class="hl-hero">
-      <div class="hl-brand">🔎 Hire<span>Lens</span></div>
-      <div class="hl-subtitle">An Explainable AI Hiring Decision Analysis Dashboard</div>
-      <span class="hl-note">Human-led decisions&nbsp; · &nbsp;Explainable analysis&nbsp; · &nbsp;Responsible AI</span>
+      <div class="hl-hero-copy">
+        <div class="hl-brand">🔎 Hire<span>Lens</span></div>
+        <div class="hl-subtitle">An Explainable AI Hiring Decision Analysis Dashboard</div>
+        <span class="hl-note">Human-led decisions&nbsp; · &nbsp;Explainable analysis&nbsp; · &nbsp;Responsible AI</span>
+      </div>
+      <div class="hl-hero-side">
+        <div class="hl-hero-orbit"><span>✦</span><b>AI</b></div>
+        <div class="hl-hero-side-title">Smarter insights.<br>Human decisions.</div>
+        <div class="hl-hero-side-sub">Clear, transparent resume alignment for every application.</div>
+        <div class="hl-hero-pills"><span>01&nbsp; Analyse</span><span>02&nbsp; Explain</span><span>03&nbsp; Decide</span></div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+def sidebar_identity(role, full_name):
+    """Compact identity panel that makes the sidebar header area purposeful."""
+    safe_name = html.escape(str(full_name or "User"))
+    initials = "".join(part[0] for part in str(full_name or "U").split()[:2]).upper()
+    initials = html.escape(initials or "U")
+    role_label = html.escape(role)
+    st.sidebar.markdown(f"""
+    <div class="hl-sidebar-brand">
+      <div class="hl-sidebar-brand-mark">🔎</div>
+      <div><div class="hl-sidebar-brand-name">Hire<span>Lens</span></div>
+      <div class="hl-sidebar-brand-tag">HIRING WORKSPACE</div></div>
+    </div>
+    <div class="hl-sidebar-user">
+      <div class="hl-sidebar-avatar">{initials}</div>
+      <div class="hl-sidebar-user-copy">
+        <div class="hl-sidebar-user-role">{role_label}</div>
+        <div class="hl-sidebar-user-name">{safe_name}</div>
+        <div class="hl-sidebar-user-status"><i></i> Account active</div>
+      </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -584,9 +641,8 @@ def render_candidate_applications(user_id):
 
 def candidate_page(user):
     brand()
-    st.sidebar.markdown("## Candidate Portal")
-    st.sidebar.caption(f"Signed in as {user['full_name']}")
-    st.sidebar.divider()
+    sidebar_identity("Candidate Portal", user["full_name"])
+    st.sidebar.markdown('<div class="hl-sidebar-section-label">NAVIGATION</div>', unsafe_allow_html=True)
     section = st.sidebar.radio(
         "Navigation", ["Dashboard", "Job Details & Apply", "My Applications", "Profile"],
         key="candidate_sidebar_navigation"
@@ -612,11 +668,6 @@ def candidate_page(user):
             '<div class="hl-muted">Add a role, upload your resume and understand how its text aligns with the job requirements.</div></div>',
             unsafe_allow_html=True
         )
-        st.markdown("### Make your next move")
-        st.write("Keep your applications organised and check updates shared by the HR team.")
-        if st.button("＋  Add job details and apply", type="primary", use_container_width=False):
-            st.session_state["candidate_sidebar_navigation"] = "Job Details & Apply"
-            st.rerun()
         st.markdown("### Recent applications")
         if apps:
             for app in apps[:3]:
@@ -1339,10 +1390,8 @@ def job_match_decisions_page():
 def hr_page(user):
     brand()
 
-    st.sidebar.title("HR / Recruiter")
-    st.sidebar.write(f"Signed in as **{user['full_name']}**")
-    st.sidebar.caption("Authorized HR account")
-    st.sidebar.divider()
+    sidebar_identity("HR / Recruiter", user["full_name"])
+    st.sidebar.markdown('<div class="hl-sidebar-section-label">NAVIGATION</div>', unsafe_allow_html=True)
     section = st.sidebar.radio(
         "Navigation",
         [
