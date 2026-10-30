@@ -48,162 +48,57 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-.stApp {
-    background: radial-gradient(
-        ellipse at 8% 0%,
-        rgba(40,120,155,.16),
-        transparent 34%
-    ), linear-gradient(
-        160deg,#0b1220 0%,#101827 52%,#0b1220 100%
-    );
-    color: #e8eef7;
+/* HireLens responsive design system. Colours follow Streamlit's active theme. */
+:root {
+  --hl-accent: #7057e8; --hl-accent-2: #8b70ff; --hl-teal: #21b7a8;
+  --hl-sidebar: #14213d; --hl-sidebar-2: #202f50;
+  --hl-radius: 18px;
 }
-[data-testid="stHeader"] {background:rgba(11,18,32,.82)}
-.block-container {
-    max-width:1400px;
-    padding-top:1.5rem;
-    padding-bottom:3rem;
-}
-[data-testid="stMetric"] {
-    background:linear-gradient(
-        145deg,rgba(27,41,64,.94),rgba(21,31,48,.94)
-    );
-    border:1px solid rgba(128,165,202,.19);
-    padding:1rem;
-    border-radius:16px;
-}
-[data-testid="stTabs"] [role="tablist"] {gap:.65rem}
-[data-testid="stTabs"] button[role="tab"] {
-    padding:.7rem .9rem;
-    font-weight:650;
-    white-space:nowrap;
-}
-[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
-    color:#43d9c5;
-    border-bottom:3px solid #43d9c5;
-}
-.stButton>button,
-[data-testid="stFormSubmitButton"]>button {
-    border-radius:10px;
-    min-height:2.7rem;
-    font-weight:700;
-}
-.stButton>button[kind="primary"],
-[data-testid="stFormSubmitButton"]>button[kind="primary"] {
-    background:linear-gradient(100deg,#087f8c,#0c9b91);
-    color:white;
-    border:0;
-}
-.hl-hero {
-    padding:1.4rem 1.6rem;
-    margin:.3rem 0 1.2rem;
-    border-radius:20px;
-    border:1px solid rgba(93,211,213,.24);
-    background:linear-gradient(
-        115deg,rgba(22,55,77,.92),
-        rgba(21,31,48,.96) 62%,rgba(31,53,77,.9)
-    );
-}
-.hl-brand {
-    color:white;
-    font-size:clamp(2rem,4vw,3rem);
-    line-height:1.08;
-    font-weight:850;
-    letter-spacing:-.05em;
-}
-.hl-brand span {color:#43d9c5}
-.hl-subtitle {
-    color:#d5e3f5;
-    font-size:1.05rem;
-    margin-top:.6rem;
-    margin-bottom:.9rem;
-}
-.hl-note {
-    display:inline-block;
-    color:#bff7ee;
-    background:rgba(67,217,197,.09);
-    border:1px solid rgba(67,217,197,.22);
-    border-radius:999px;
-    padding:.4rem .75rem;
-    font-size:.85rem;
-    font-weight:650;
-}
-
-
-/* --------------------------------------------------
-   FIX: readable text in job descriptions and form fields
-   Applies to both candidate and HR portals.
--------------------------------------------------- */
-.stTextArea textarea,
-.stTextInput input,
-.stNumberInput input,
-[data-baseweb="input"] input,
-[data-baseweb="textarea"] textarea {
-    color: #172033 !important;
-    -webkit-text-fill-color: #172033 !important;
-    background-color: #ffffff !important;
-    opacity: 1 !important;
-    caret-color: #172033 !important;
-}
-
-.stTextArea textarea::placeholder,
-.stTextInput input::placeholder,
-[data-baseweb="textarea"] textarea::placeholder,
-[data-baseweb="input"] input::placeholder {
-    color: #64748b !important;
-    -webkit-text-fill-color: #64748b !important;
-    opacity: 1 !important;
-}
-
-.stTextArea label,
-.stTextInput label,
-.stNumberInput label {
-    color: #e8eef7 !important;
-}
-
+.stApp { background: var(--background-color, #f6f7fb) !important; color: var(--text-color, #18243b) !important; }
+[data-testid="stAppViewContainer"] { background: var(--background-color, #f6f7fb) !important; }
+[data-testid="stHeader"] { background: transparent !important; }
+.block-container { max-width: 1500px; padding-top: 1.35rem; padding-bottom: 3rem; }
+[data-testid="stSidebar"] { background: linear-gradient(180deg,var(--hl-sidebar),var(--hl-sidebar-2)) !important; border-right: 1px solid rgba(255,255,255,.08); }
+[data-testid="stSidebar"] * { color: #eef3ff !important; }
+[data-testid="stSidebar"] [data-testid="stRadio"] label { padding: .55rem .65rem; border-radius: 10px; margin: .12rem 0; transition: background .15s ease; }
+[data-testid="stSidebar"] [data-testid="stRadio"] label:hover { background: rgba(255,255,255,.12) !important; }
+[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) { background: rgba(125,105,255,.25) !important; }
+/* Keep sidebar controls visible without relying on hover. */
+[data-testid="stSidebar"] .stButton > button,
+[data-testid="stSidebar"] [data-testid="stFormSubmitButton"] > button { background: #f4f6ff !important; color: #17243b !important; border: 1px solid rgba(255,255,255,.35) !important; font-weight: 750 !important; opacity: 1 !important; }
+[data-testid="stSidebar"] .stButton > button:hover { background: #ffffff !important; color: #4e3db5 !important; border-color: #ffffff !important; }
+[data-testid="stMetric"] { background: var(--secondary-background-color, #fff) !important; border: 1px solid var(--border-color, rgba(120,130,150,.22)) !important; border-radius: var(--hl-radius) !important; padding: 1.05rem 1.15rem !important; box-shadow: 0 7px 22px rgba(30,45,80,.06); }
+[data-testid="stMetricLabel"] { opacity: .78; font-weight: 650 !important; }
+[data-testid="stMetricValue"] { font-weight: 850 !important; letter-spacing: -.035em; }
+[data-testid="stTabs"] [role="tablist"] { gap: .55rem; border-bottom: 1px solid var(--border-color, rgba(120,130,150,.22)); }
+[data-testid="stTabs"] button[role="tab"] { padding: .72rem 1rem; font-weight: 700; }
+[data-testid="stTabs"] button[role="tab"][aria-selected="true"] { color: var(--primary-color, var(--hl-accent)) !important; border-bottom: 3px solid var(--primary-color, var(--hl-accent)) !important; }
+.stButton > button, [data-testid="stFormSubmitButton"] > button { border-radius: 11px !important; min-height: 2.7rem; font-weight: 700 !important; opacity: 1 !important; transition: transform .15s ease, box-shadow .15s ease, background .15s ease; }
+.stButton > button:hover, [data-testid="stFormSubmitButton"] > button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(91,75,190,.15); }
+.stButton > button[kind="primary"], [data-testid="stFormSubmitButton"] > button[kind="primary"] { background: linear-gradient(100deg,#6554d7,#806be9) !important; color: #fff !important; border: 0 !important; }
+.stTextInput input, .stTextArea textarea, .stNumberInput input, [data-baseweb="input"] input, [data-baseweb="textarea"] textarea { background: var(--secondary-background-color, #fff) !important; color: var(--text-color, #17243b) !important; -webkit-text-fill-color: var(--text-color, #17243b) !important; border-color: var(--border-color, rgba(120,130,150,.3)) !important; border-radius: 10px !important; opacity: 1 !important; }
+.stTextInput input::placeholder, .stTextArea textarea::placeholder { opacity: .58 !important; -webkit-text-fill-color: var(--text-color, #17243b) !important; }
+.stTextInput label, .stTextArea label, .stSelectbox label, .stRadio label, .stFileUploader label, .stNumberInput label, .stMultiSelect label { color: var(--text-color) !important; font-weight: 650 !important; }
+[data-testid="stExpander"] { border: 1px solid var(--border-color, rgba(120,130,150,.25)); border-radius: 14px; }
+[data-testid="stAlert"] { border-radius: 12px; }
+.hl-hero { padding: 1.45rem 1.65rem; margin: .15rem 0 1.25rem; border-radius: 22px; border: 1px solid rgba(126,112,225,.18); background: linear-gradient(112deg,#fff 0%,#f1efff 58%,#e9f8f6 100%); box-shadow: 0 9px 28px rgba(31,48,78,.06); }
+.hl-brand { color: #17243b; font-size: clamp(2rem,3.8vw,2.8rem); line-height: 1.08; font-weight: 900; letter-spacing: -.05em; }
+.hl-brand span { color: #6b59dc; }
+.hl-subtitle { color: #59677e; font-size: 1rem; margin-top: .45rem; margin-bottom: .8rem; }
+.hl-note { display: inline-block; color: #286c68; background: #e5f6f3; border: 1px solid #ccebe6; border-radius: 999px; padding: .38rem .75rem; font-size: .82rem; font-weight: 750; }
+.hl-page-kicker { color: #806be9; font-size: .73rem; font-weight: 850; letter-spacing: .13em; text-transform: uppercase; margin-bottom: .28rem; }
+.hl-page-title { color: var(--text-color); font-size: clamp(1.55rem,2.5vw,2rem); line-height: 1.2; font-weight: 850; letter-spacing: -.04em; margin: 0 0 .35rem; }
+.hl-page-sub { color: var(--text-color); opacity: .68; font-size: .96rem; margin-bottom: 1.1rem; }
+.hl-panel { background: var(--secondary-background-color, #fff); border: 1px solid var(--border-color, rgba(120,130,150,.2)); border-radius: 17px; padding: 1.1rem 1.2rem; box-shadow: 0 6px 20px rgba(31,48,78,.045); }
+.hl-panel-title { color: var(--text-color); font-weight: 800; font-size: 1rem; margin-bottom: .25rem; }
+.hl-muted { color: var(--text-color); opacity: .68; font-size: .86rem; }
+.hl-login-panel { background: linear-gradient(145deg,#111e3c,#263b69 70%,#443b91); border-radius: 22px; padding: 2rem; min-height: 430px; color: white; }
+.hl-login-panel h1,.hl-login-panel h2,.hl-login-panel p,.hl-login-panel li { color: white !important; }
+.hl-login-panel h1 { font-size: clamp(2rem,4vw,3.1rem); line-height: 1.08; letter-spacing: -.045em; }
+.hl-login-chip { display:inline-block; padding:.42rem .7rem; border-radius:999px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); margin:.25rem .25rem .25rem 0; font-size:.8rem; }
+@media (max-width: 850px) { .block-container { padding-left: 1rem; padding-right: 1rem; } .hl-hero { padding: 1rem; } .hl-login-panel { min-height: auto; margin-bottom: 1rem; } }
 </style>
 """, unsafe_allow_html=True)
-
-# HireLens visual refresh: clean light workspace, deep-navy navigation, and
-# restrained violet/teal accents. This layer intentionally leaves app logic intact.
-st.markdown("""
-<style>
-:root { --hl-ink:#17243b; --hl-muted:#68758b; --hl-line:#e5eaf2; --hl-violet:#6957d8; --hl-teal:#159b91; }
-.stApp { background:#f5f7fb !important; color:var(--hl-ink) !important; }
-[data-testid="stHeader"] { background:rgba(245,247,251,.92) !important; }
-.block-container { max-width:1440px; padding-top:1.15rem; padding-bottom:3rem; }
-[data-testid="stSidebar"] { background:linear-gradient(180deg,#17243b 0%,#202e49 100%) !important; }
-[data-testid="stSidebar"] * { color:#edf2fb !important; }
-[data-testid="stSidebar"] [data-testid="stRadio"] label { padding:.48rem .55rem; border-radius:9px; }
-[data-testid="stSidebar"] [data-testid="stRadio"] label:hover { background:rgba(255,255,255,.09); }
-[data-testid="stSidebar"] button { border-color:rgba(255,255,255,.2) !important; }
-[data-testid="stMetric"] { background:#fff !important; border:1px solid var(--hl-line) !important; border-radius:16px !important; padding:1rem 1.1rem !important; box-shadow:0 5px 18px rgba(31,48,78,.045); }
-[data-testid="stMetricLabel"] { color:#69778d !important; font-weight:650 !important; }
-[data-testid="stMetricValue"] { color:#17243b !important; font-weight:800 !important; }
-[data-testid="stTabs"] [role="tablist"] { gap:.55rem; border-bottom:1px solid var(--hl-line); }
-[data-testid="stTabs"] button[role="tab"] { color:#526078 !important; padding:.7rem 1rem; font-weight:650; }
-[data-testid="stTabs"] button[role="tab"][aria-selected="true"] { color:var(--hl-violet) !important; border-bottom:3px solid var(--hl-violet) !important; }
-.stButton>button, [data-testid="stFormSubmitButton"]>button { border-radius:10px !important; min-height:2.65rem; font-weight:700; border:1px solid #dce2ed; }
-.stButton>button[kind="primary"], [data-testid="stFormSubmitButton"]>button[kind="primary"] { background:linear-gradient(100deg,#6554d7,#806be9) !important; color:#fff !important; border:0 !important; }
-.stTextInput input, .stTextArea textarea, .stNumberInput input, [data-baseweb="input"] input, [data-baseweb="textarea"] textarea { background:#fff !important; color:#17243b !important; -webkit-text-fill-color:#17243b !important; border-color:#dce3ee !important; border-radius:9px !important; }
-.stTextInput label, .stTextArea label, .stSelectbox label, .stRadio label, .stFileUploader label, .stNumberInput label { color:#34435c !important; font-weight:600 !important; }
-[data-testid="stExpander"] { background:#fff; border:1px solid var(--hl-line); border-radius:13px; }
-[data-testid="stAlert"] { border-radius:12px; }
-.hl-hero { padding:1.25rem 1.55rem; margin:.15rem 0 1.15rem; border-radius:18px; border:1px solid #e4e7f2; background:linear-gradient(110deg,#fff 0%,#f0efff 58%,#eaf8f7 100%); box-shadow:0 6px 22px rgba(31,48,78,.045); }
-.hl-brand { color:#17243b; font-size:clamp(1.9rem,3.5vw,2.55rem); line-height:1.08; font-weight:850; letter-spacing:-.045em; }
-.hl-brand span { color:#6b59dc; }
-.hl-subtitle { color:#59677e; font-size:1rem; margin-top:.45rem; margin-bottom:.8rem; }
-.hl-note { display:inline-block; color:#286c68; background:#e5f6f3; border:1px solid #ccebe6; border-radius:999px; padding:.36rem .72rem; font-size:.82rem; font-weight:700; }
-.hl-page-kicker { color:#6c5bd5; font-size:.76rem; font-weight:800; letter-spacing:.11em; text-transform:uppercase; margin-bottom:.25rem; }
-.hl-page-title { color:#17243b; font-size:1.75rem; line-height:1.2; font-weight:820; letter-spacing:-.035em; margin:0 0 .35rem; }
-.hl-page-sub { color:#718096; font-size:.96rem; margin-bottom:1.1rem; }
-.hl-panel { background:#fff; border:1px solid #e5eaf2; border-radius:16px; padding:1.05rem 1.2rem; box-shadow:0 5px 18px rgba(31,48,78,.035); }
-.hl-panel-title { color:#24334c; font-weight:750; font-size:1rem; margin-bottom:.25rem; }
-.hl-muted { color:#718096; font-size:.88rem; }
-@media (max-width: 800px) { .block-container { padding-left:1rem; padding-right:1rem; } .hl-hero { padding:1rem; } }
-</style>
-""", unsafe_allow_html=True)
-
 
 # --------------------------------------------------
 # BRANDING AND COMMON HELPERS
@@ -485,7 +380,7 @@ def submit_resumes(files, job, owner_id=None, owner_name=None):
 
 
 def logout():
-    if st.sidebar.button("Log out", use_container_width=True):
+    if st.sidebar.button("↪  Log out", key="hirelens_logout", use_container_width=True):
         st.session_state.pop("hirelens_user", None)
         st.rerun()
 
@@ -495,118 +390,78 @@ def logout():
 # --------------------------------------------------
 
 def login_page():
-    brand()
-
-    st.subheader("Welcome to your hiring workspace")
-    st.write(
-        "Choose the appropriate account type. Candidate registration "
-        "never creates an HR account."
-    )
-
-    tab_login, tab_register, tab_hr = st.tabs([
-        "Login",
-        "Candidate Registration",
-        "Authorized HR Setup"
-    ])
-
-    with tab_login:
-        with st.form("login_form"):
-            email = st.text_input("Email address", key="login_email")
-            password = st.text_input(
-                "Password",
-                type="password",
-                key="login_password"
-            )
-            submit = st.form_submit_button(
-                "Login",
-                type="primary",
-                use_container_width=True
-            )
-
-        if submit:
-            try:
-                user = authenticate_user(email, password)
-
-                if user:
-                    st.session_state["hirelens_user"] = user
-                    st.rerun()
+    """Responsive split welcome/login experience for candidates and HR."""
+    left, right = st.columns([1.05, 1], gap="large")
+    with left:
+        st.markdown("""
+        <div class="hl-login-panel">
+          <div style="font-size:1.05rem;font-weight:800;letter-spacing:.02em">🔎 HireLens</div>
+          <div style="height:2.3rem"></div>
+          <h1>Smarter Hiring.<br>More Opportunities.</h1>
+          <p style="font-size:1.02rem;opacity:.88;line-height:1.6">AI-assisted resume analysis with clear explanations. Final decisions always remain in human hands.</p>
+          <div style="height:1rem"></div>
+          <div class="hl-login-chip">✓ Explainable AI</div>
+          <div class="hl-login-chip">✓ Fairer review</div>
+          <div class="hl-login-chip">✓ Human-led decisions</div>
+          <div style="height:2.2rem"></div>
+          <div style="padding:1rem;border-radius:15px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12)">
+            <div style="font-size:1.5rem;font-weight:800">Your skills. Your insights.</div>
+            <div style="opacity:.82;margin-top:.35rem">A clearer way to understand how a resume aligns with a role.</div>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+    with right:
+        st.markdown('<div class="hl-page-kicker">Welcome to HireLens</div><div class="hl-page-title">Your hiring workspace</div><div class="hl-page-sub">Sign in or create the right account to continue.</div>', unsafe_allow_html=True)
+        tab_login, tab_register, tab_hr = st.tabs(["Login", "Candidate registration", "Authorized HR setup"])
+        with tab_login:
+            with st.form("login_form"):
+                email = st.text_input("Email address", key="login_email")
+                password = st.text_input("Password", type="password", key="login_password")
+                submit = st.form_submit_button("Login", type="primary", use_container_width=True)
+            if submit:
+                try:
+                    user = authenticate_user(email, password)
+                    if user:
+                        st.session_state["hirelens_user"] = user
+                        st.rerun()
+                    else:
+                        st.error("Email or password is incorrect.")
+                except Exception as exc:
+                    st.error(f"Login failed: {exc}")
+        with tab_register:
+            with st.form("candidate_register"):
+                name = st.text_input("Full name", key="reg_name")
+                email = st.text_input("Email address", key="reg_email")
+                password = st.text_input("Password (minimum 10 characters)", type="password", key="reg_password")
+                confirm = st.text_input("Confirm password", type="password", key="reg_confirm")
+                submit = st.form_submit_button("Create candidate account", type="primary", use_container_width=True)
+            if submit:
+                if password != confirm:
+                    st.error("Passwords do not match.")
                 else:
-                    st.error("Email or password is incorrect.")
-
-            except Exception as exc:
-                st.error(f"Login failed: {exc}")
-
-    with tab_register:
-        with st.form("candidate_register"):
-            name = st.text_input("Full name", key="reg_name")
-            email = st.text_input("Email address", key="reg_email")
-            password = st.text_input(
-                "Password (minimum 10 characters)",
-                type="password",
-                key="reg_password"
-            )
-            confirm = st.text_input(
-                "Confirm password",
-                type="password",
-                key="reg_confirm"
-            )
-            submit = st.form_submit_button(
-                "Create Candidate Account",
-                type="primary",
-                use_container_width=True
-            )
-
-        if submit:
-            if password != confirm:
-                st.error("Passwords do not match.")
-            else:
-                try:
-                    register_candidate(name, email, password)
-                    st.success("Candidate account created. Please log in.")
-                except Exception as exc:
-                    st.error(str(exc))
-
-    with tab_hr:
-        st.warning(
-            "HR registration requires the administrator's private "
-            "HIRELENS_HR_INVITE_KEY secret."
-        )
-
-        with st.form("hr_register"):
-            name = st.text_input("HR full name", key="hr_reg_name")
-            email = st.text_input("Work email", key="hr_reg_email")
-            password = st.text_input(
-                "Password (minimum 10 characters)",
-                type="password",
-                key="hr_reg_password"
-            )
-            confirm = st.text_input(
-                "Confirm password",
-                type="password",
-                key="hr_reg_confirm"
-            )
-            invite = st.text_input(
-                "HR authorization key",
-                type="password",
-                key="hr_reg_invite"
-            )
-            submit = st.form_submit_button(
-                "Create Authorized HR Account",
-                type="primary",
-                use_container_width=True
-            )
-
-        if submit:
-            if password != confirm:
-                st.error("Passwords do not match.")
-            else:
-                try:
-                    create_authorized_hr_user(
-                        name, email, password, invite
-                    )
-                    st.success("HR account created. Please log in.")
-                except Exception as exc:
-                    st.error(str(exc))
+                    try:
+                        register_candidate(name, email, password)
+                        st.success("Candidate account created. Please log in.")
+                    except Exception as exc:
+                        st.error(str(exc))
+        with tab_hr:
+            st.info("HR registration requires the administrator's private authorization key.")
+            with st.form("hr_register"):
+                name = st.text_input("HR full name", key="hr_reg_name")
+                email = st.text_input("Work email", key="hr_reg_email")
+                password = st.text_input("Password (minimum 10 characters)", type="password", key="hr_reg_password")
+                confirm = st.text_input("Confirm password", type="password", key="hr_reg_confirm")
+                invite = st.text_input("HR authorization key", type="password", key="hr_reg_invite")
+                submit = st.form_submit_button("Create authorized HR account", type="primary", use_container_width=True)
+            if submit:
+                if password != confirm:
+                    st.error("Passwords do not match.")
+                else:
+                    try:
+                        create_authorized_hr_user(name, email, password, invite)
+                        st.success("HR account created. Please log in.")
+                    except Exception as exc:
+                        st.error(str(exc))
 
 
 # --------------------------------------------------
@@ -709,42 +564,82 @@ def render_candidate_applications(user_id):
 
 def candidate_page(user):
     brand()
-    st.sidebar.title("Candidate Portal")
-    st.sidebar.write(f"Signed in as **{user['full_name']}**")
+    st.sidebar.markdown("## Candidate Portal")
+    st.sidebar.caption(f"Signed in as {user['full_name']}")
+    st.sidebar.divider()
+    section = st.sidebar.radio(
+        "Navigation", ["Dashboard", "Job Details & Apply", "My Applications", "Profile"],
+        key="candidate_sidebar_navigation"
+    )
     logout()
-    st.markdown('<div class="hl-page-kicker">Candidate workspace</div><div class="hl-page-title">Your dashboard</div><div class="hl-page-sub">Apply for a role, review your submissions, and check updates shared by HR.</div>', unsafe_allow_html=True)
 
-    upload_tab, apps_tab = st.tabs(["Upload Resume", "My Applications"])
+    apps = get_candidate_applications(user["id"])
+    job_matches = get_candidate_job_matches(user["id"])
+    decisions = [m for m in job_matches if m.get("published") and m.get("hr_decision")]
+    shortlisted = sum(1 for m in decisions if m.get("hr_decision") == "Shortlist")
+    rejected = sum(1 for m in decisions if m.get("hr_decision") == "Reject")
+    pending = max(len(apps) - len(decisions), 0)
 
-    with upload_tab:
-        st.write("Enter the job details for the position you want to apply for.")
+    if section == "Dashboard":
+        st.markdown('<div class="hl-page-kicker">Candidate workspace</div><div class="hl-page-title">Welcome back, '+str(user.get("full_name", "Candidate"))+' 👋</div><div class="hl-page-sub">Take the next step in your career with clear, AI-assisted resume insights.</div>', unsafe_allow_html=True)
+        k1,k2,k3,k4 = st.columns(4)
+        k1.metric("Total applications", len(apps))
+        k2.metric("Under review", pending)
+        k3.metric("Shortlisted", shortlisted)
+        k4.metric("Rejected", rejected)
+        left,right = st.columns([1.25,1], gap="large")
+        with left:
+            st.markdown('<div class="hl-panel"><div class="hl-panel-title">Your next opportunity starts here</div><div class="hl-muted">Add a role, upload your resume and understand how its text aligns with the job requirements.</div></div>', unsafe_allow_html=True)
+            st.markdown("### Make your next move")
+            st.write("Keep your applications organised and check updates shared by the HR team.")
+            if st.button("＋  Add job details and apply", type="primary", use_container_width=True):
+                st.session_state["candidate_sidebar_navigation"] = "Job Details & Apply"
+                st.rerun()
+        with right:
+            st.markdown('<div class="hl-panel"><div class="hl-panel-title">Quick actions</div><div class="hl-muted">Jump straight to your workspace</div></div>', unsafe_allow_html=True)
+            if st.button("View my applications", use_container_width=True):
+                st.session_state["candidate_sidebar_navigation"] = "My Applications"
+                st.rerun()
+            if st.button("Submit a new resume", use_container_width=True):
+                st.session_state["candidate_sidebar_navigation"] = "Job Details & Apply"
+                st.rerun()
+        st.markdown("### Recent applications")
+        if apps:
+            for app in apps[:3]:
+                with st.container(border=True):
+                    st.markdown(f"**{app.get('job_title') or 'Application'}**")
+                    st.caption(f"Application ID: {app.get('application_id','—')}  ·  Submitted: {app.get('created_at','—')}")
+        else:
+            st.info("You haven't submitted an application yet. Start by adding job details and uploading your resume.")
+        st.caption("AI scores are advisory and measure textual alignment only. HR makes the final hiring decision.")
+
+    elif section == "Job Details & Apply":
+        st.markdown('<div class="hl-page-kicker">Application workspace</div><div class="hl-page-title">Apply for a role</div><div class="hl-page-sub">Enter the role details, upload your PDF resume and review the analysis.</div>', unsafe_allow_html=True)
+        st.markdown("### 1 · Job details")
         job = job_form("candidate")
-        files = st.file_uploader(
-            "Upload resume PDF(s)",
-            type=["pdf"],
-            accept_multiple_files=True,
-            key="candidate_pdfs"
-        )
-        if st.button("Submit", type="primary", use_container_width=True):
+        st.markdown("### 2 · Upload your resume")
+        files = st.file_uploader("Upload resume PDF(s)", type=["pdf"], accept_multiple_files=True, key="candidate_pdfs")
+        if st.button("Submit application", type="primary", use_container_width=True):
             if not job:
                 st.error("Please save the job details first.")
             elif not files:
                 st.error("Please upload at least one PDF resume.")
             else:
-                submit_resumes(
-                    files, job,
-                    owner_id=user["id"],
-                    owner_name=user["full_name"]
-                )
-                st.session_state["candidate_submission_notice"] = (
-                    "Your submission has been processed. Check the application ID(s) below."
-                )
-
+                submit_resumes(files, job, owner_id=user["id"], owner_name=user["full_name"])
+                st.session_state["candidate_submission_notice"] = "Your submission has been processed. Check the application ID(s) above."
         if st.session_state.get("candidate_submission_notice"):
             st.success(st.session_state["candidate_submission_notice"])
 
-    with apps_tab:
+    elif section == "My Applications":
+        st.markdown('<div class="hl-page-kicker">Application tracker</div><div class="hl-page-title">My applications</div><div class="hl-page-sub">Track submissions and view HR decisions and feedback when they are published.</div>', unsafe_allow_html=True)
         render_candidate_applications(user["id"])
+
+    elif section == "Profile":
+        st.markdown('<div class="hl-page-kicker">Account</div><div class="hl-page-title">Your profile</div><div class="hl-page-sub">Your account information.</div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.write("**Full name**", user.get("full_name", "—"))
+            st.write("**Email address**", user.get("email", "—"))
+            st.write("**Account type**", "Candidate")
 
 
 def job_requirements_tab(user):
@@ -1488,6 +1383,22 @@ def hr_page(user):
             if st.button("✓  Review HR decisions", use_container_width=True):
                 st.session_state["hr_sidebar_navigation"] = "HR Decisions"
                 st.rerun()
+
+        st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
+        st.markdown("### Recent application records")
+        if rows:
+            preview = []
+            for record in rows[:6]:
+                preview.append({
+                    "Candidate": record.get("candidate_name") or record.get("candidate_id") or "Candidate",
+                    "Application ID": record.get("application_id") or "—",
+                    "Job title": record.get("job_title") or "—",
+                    "AI recommendation": record.get("ai_recommendation") or "Not analyzed",
+                    "HR status": record.get("hr_decision") or "Awaiting decision",
+                })
+            st.dataframe(preview, use_container_width=True, hide_index=True)
+        else:
+            st.info("No application records yet. Upload resumes or receive candidate submissions to get started.")
 
         st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
         st.markdown('<div class="hl-panel"><div class="hl-panel-title">Responsible AI reminder</div><div class="hl-muted">HireLens provides an explainable, text-based comparison to support review. A skill not detected in a resume does not prove the candidate lacks it. AI scores and recommendations are advisory only; the authorized HR reviewer makes and publishes the final decision.</div></div>', unsafe_allow_html=True)
