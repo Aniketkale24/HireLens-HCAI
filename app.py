@@ -260,7 +260,7 @@ def job_form(key):
             placeholder="Python, SQL, Pandas"
         )
         save = st.form_submit_button(
-            "Analyze and Submit",
+            "Save Job Details",
             type="primary"
         )
 
@@ -279,6 +279,12 @@ def job_form(key):
                     if item.strip()
                 ],
             }
+            st.session_state[f"{key}_job_saved_notice"] = (
+                "Job details saved. Upload your resume and click Submit when ready."
+            )
+
+    if st.session_state.get(f"{key}_job_saved_notice"):
+        st.success(st.session_state[f"{key}_job_saved_notice"])
 
     return st.session_state.get(f"{key}_job")
 
@@ -656,8 +662,23 @@ def candidate_page(user):
             accept_multiple_files=True,
             key="candidate_pdfs"
         )
-        if st.button("Analyze and Submit", type="primary", use_container_width=True):
-            submit_resumes(files, job, owner_id=user["id"], owner_name=user["full_name"])
+        if st.button("Submit", type="primary", use_container_width=True):
+            if not job:
+                st.error("Please save the job details first.")
+            elif not files:
+                st.error("Please upload at least one PDF resume.")
+            else:
+                submit_resumes(
+                    files, job,
+                    owner_id=user["id"],
+                    owner_name=user["full_name"]
+                )
+                st.session_state["candidate_submission_notice"] = (
+                    "Your submission has been processed. Check the application ID(s) below."
+                )
+
+        if st.session_state.get("candidate_submission_notice"):
+            st.success(st.session_state["candidate_submission_notice"])
 
     with apps_tab:
         render_candidate_applications(user["id"])
@@ -665,6 +686,10 @@ def candidate_page(user):
 
 def job_requirements_tab(user):
     st.subheader("Create and manage jobs")
+
+    if st.session_state.get("job_saved_notice"):
+        st.success(st.session_state["job_saved_notice"])
+
     st.write(
         "Save job details once, then match them against stored "
         "resume PDFs from candidate submissions and HR uploads."
@@ -705,7 +730,9 @@ def job_requirements_tab(user):
                 created_by=user["id"]
             )
             st.session_state["selected_job_id"] = new_job_id
-            st.success("Job saved permanently.")
+            st.session_state["job_saved_notice"] = (
+                f"Job requirements saved successfully. Job ID: {new_job_id}"
+            )
             st.rerun()
 
         except Exception as exc:
