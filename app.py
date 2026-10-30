@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import hashlib
+import html
 from pathlib import Path
 
 import streamlit as st
