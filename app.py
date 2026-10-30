@@ -358,7 +358,7 @@ def submit_resumes(files, job, owner_id=None, owner_name=None):
             with sqlite3.connect(DB_PATH) as con:
                 con.row_factory = sqlite3.Row
                 existing = con.execute("""
-                    SELECT id, application_id
+                    SELECT id, application_id, match_score, skill_score
                     FROM candidates
                     WHERE applicant_user_id IS ?
                       AND job_title = ?
@@ -371,10 +371,35 @@ def submit_resumes(files, job, owner_id=None, owner_name=None):
                 )).fetchone()
 
             if existing:
-                st.info(
-                    f"{pdf.name} was already submitted for this job. "
-                    f"Existing application ID: {existing['application_id']}"
+                # Re-analyse the existing application against the latest job
+                # details. Keep the same Application ID and do not create a row.
+                result = analyze_resume_pdf(
+                    pdf_bytes,
+                    job["description"],
+                    job["skills"]
                 )
+                with sqlite3.connect(DB_PATH) as con:
+                    con.execute("""UPDATE candidates
+                        SET job_title = ?, job_description = ?, required_skills = ?,
+                            match_score = ?, skill_score = ?, text_similarity = ?,
+                            matched_skills = ?, missing_skills = ?, ai_recommendation = ?
+                        WHERE id = ?""", (
+                        job["title"], job["description"], ", ".join(job["skills"]),
+                        result["match_score"], result["skill_score"], result["text_similarity"],
+                        ", ".join(result["matched_skills"]),
+                        ", ".join(result["missing_skills"]), result["recommendation"],
+                        existing["id"]
+                    ))
+                st.warning(
+                    f"This resume was already submitted. We updated the analysis "
+                    f"using your latest job details. Your existing Application ID "
+                    f"is {existing['application_id']}; no duplicate application was created."
+                )
+                left, right = st.columns(2)
+                left.metric("Updated match score", f"{float(result['match_score']):.1f}/100")
+                right.metric("Updated skill coverage", f"{float(result['skill_score']):.1f}%")
+                with st.expander("View updated analysis", expanded=True):
+                    show_result(result)
                 skipped += 1
                 continue
 
@@ -392,6 +417,8 @@ def submit_resumes(files, job, owner_id=None, owner_name=None):
                 candidate_name=name,
                 resume_pdf=pdf_bytes,
                 resume_filename=pdf.name,
+                job_description=job["description"],
+                required_skills=", ".join(job["skills"]),
             )
 
             with sqlite3.connect(DB_PATH) as con:
