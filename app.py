@@ -48,14 +48,14 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-/* HireLens responsive design system. Colours follow Streamlit's active theme. */
+/* HireLens fixed light design system. The app intentionally stays light for every visitor. */
 :root {
   --hl-accent: #7057e8; --hl-accent-2: #8b70ff; --hl-teal: #21b7a8;
   --hl-sidebar: #14213d; --hl-sidebar-2: #202f50;
   --hl-radius: 18px;
 }
-.stApp { background: var(--background-color, #f6f7fb) !important; color: var(--text-color, #18243b) !important; }
-[data-testid="stAppViewContainer"] { background: var(--background-color, #f6f7fb) !important; }
+.stApp { background: #f5f7fc !important; color: #18243b !important; }
+[data-testid="stAppViewContainer"] { background: #f5f7fc !important; color: #18243b !important; }
 [data-testid="stHeader"] { background: transparent !important; }
 .block-container { max-width: 1500px; padding-top: 1.35rem; padding-bottom: 3rem; }
 [data-testid="stSidebar"] { background: linear-gradient(180deg,var(--hl-sidebar),var(--hl-sidebar-2)) !important; border-right: 1px solid rgba(255,255,255,.08); }
@@ -65,21 +65,32 @@ st.markdown("""
 [data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) { background: rgba(125,105,255,.25) !important; }
 /* Keep sidebar controls visible without relying on hover. */
 [data-testid="stSidebar"] .stButton > button,
-[data-testid="stSidebar"] [data-testid="stFormSubmitButton"] > button { background: #f4f6ff !important; color: #17243b !important; border: 1px solid rgba(255,255,255,.35) !important; font-weight: 750 !important; opacity: 1 !important; }
-[data-testid="stSidebar"] .stButton > button:hover { background: #ffffff !important; color: #4e3db5 !important; border-color: #ffffff !important; }
-[data-testid="stMetric"] { background: var(--secondary-background-color, #fff) !important; border: 1px solid var(--border-color, rgba(120,130,150,.22)) !important; border-radius: var(--hl-radius) !important; padding: 1.05rem 1.15rem !important; box-shadow: 0 7px 22px rgba(30,45,80,.06); }
+[data-testid="stSidebar"] .stButton > button *,
+[data-testid="stSidebar"] [data-testid="stFormSubmitButton"] > button,
+[data-testid="stSidebar"] [data-testid="stFormSubmitButton"] > button * {
+  background: #ffffff !important; color: #17243b !important;
+  -webkit-text-fill-color: #17243b !important;
+  border: 1px solid #d7def0 !important; font-weight: 800 !important;
+  opacity: 1 !important; visibility: visible !important;
+}
+[data-testid="stSidebar"] .stButton > button:hover,
+[data-testid="stSidebar"] .stButton > button:hover * {
+  background: #eeeaff !important; color: #40328f !important;
+  -webkit-text-fill-color: #40328f !important; border-color: #c8bfff !important;
+}
+[data-testid="stMetric"] { background: #ffffff !important; border: 1px solid #e1e6f0 !important; border-radius: var(--hl-radius) !important; padding: 1.05rem 1.15rem !important; box-shadow: 0 7px 22px rgba(30,45,80,.06); }
 [data-testid="stMetricLabel"] { opacity: .78; font-weight: 650 !important; }
 [data-testid="stMetricValue"] { font-weight: 850 !important; letter-spacing: -.035em; }
-[data-testid="stTabs"] [role="tablist"] { gap: .55rem; border-bottom: 1px solid var(--border-color, rgba(120,130,150,.22)); }
+[data-testid="stTabs"] [role="tablist"] { gap: .55rem; border-bottom: 1px solid #e1e6f0; }
 [data-testid="stTabs"] button[role="tab"] { padding: .72rem 1rem; font-weight: 700; }
 [data-testid="stTabs"] button[role="tab"][aria-selected="true"] { color: var(--primary-color, var(--hl-accent)) !important; border-bottom: 3px solid var(--primary-color, var(--hl-accent)) !important; }
-.stButton > button, [data-testid="stFormSubmitButton"] > button { border-radius: 11px !important; min-height: 2.7rem; font-weight: 700 !important; opacity: 1 !important; transition: transform .15s ease, box-shadow .15s ease, background .15s ease; }
+.stButton > button:not([kind="primary"]), [data-testid="stFormSubmitButton"] > button:not([kind="primary"]) { color:#24324a !important; -webkit-text-fill-color:#24324a !important; background:#ffffff !important; border:1px solid #d8deea !important; }\n.stButton > button, [data-testid="stFormSubmitButton"] > button { border-radius: 11px !important; min-height: 2.7rem; font-weight: 700 !important; opacity: 1 !important; transition: transform .15s ease, box-shadow .15s ease, background .15s ease; }
 .stButton > button:hover, [data-testid="stFormSubmitButton"] > button:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(91,75,190,.15); }
 .stButton > button[kind="primary"], [data-testid="stFormSubmitButton"] > button[kind="primary"] { background: linear-gradient(100deg,#6554d7,#806be9) !important; color: #fff !important; border: 0 !important; }
-.stTextInput input, .stTextArea textarea, .stNumberInput input, [data-baseweb="input"] input, [data-baseweb="textarea"] textarea { background: var(--secondary-background-color, #fff) !important; color: var(--text-color, #17243b) !important; -webkit-text-fill-color: var(--text-color, #17243b) !important; border-color: var(--border-color, rgba(120,130,150,.3)) !important; border-radius: 10px !important; opacity: 1 !important; }
-.stTextInput input::placeholder, .stTextArea textarea::placeholder { opacity: .58 !important; -webkit-text-fill-color: var(--text-color, #17243b) !important; }
-.stTextInput label, .stTextArea label, .stSelectbox label, .stRadio label, .stFileUploader label, .stNumberInput label, .stMultiSelect label { color: var(--text-color) !important; font-weight: 650 !important; }
-[data-testid="stExpander"] { border: 1px solid var(--border-color, rgba(120,130,150,.25)); border-radius: 14px; }
+.stTextInput input, .stTextArea textarea, .stNumberInput input, [data-baseweb="input"] input, [data-baseweb="textarea"] textarea { background: #ffffff !important; color: #18243b !important; -webkit-text-fill-color: #18243b !important; border-color: #d8deea !important; border-radius: 10px !important; opacity: 1 !important; }
+.stTextInput input::placeholder, .stTextArea textarea::placeholder { opacity: .58 !important; -webkit-text-fill-color: #18243b !important; }
+.stTextInput label, .stTextArea label, .stSelectbox label, .stRadio label, .stFileUploader label, .stNumberInput label, .stMultiSelect label { color: #18243b !important; font-weight: 650 !important; }
+[data-testid="stExpander"] { border: 1px solid #e1e6f0; border-radius: 14px; }
 [data-testid="stAlert"] { border-radius: 12px; }
 .hl-hero { padding: 1.45rem 1.65rem; margin: .15rem 0 1.25rem; border-radius: 22px; border: 1px solid rgba(126,112,225,.18); background: linear-gradient(112deg,#fff 0%,#f1efff 58%,#e9f8f6 100%); box-shadow: 0 9px 28px rgba(31,48,78,.06); }
 .hl-brand { color: #17243b; font-size: clamp(2rem,3.8vw,2.8rem); line-height: 1.08; font-weight: 900; letter-spacing: -.05em; }
@@ -87,16 +98,25 @@ st.markdown("""
 .hl-subtitle { color: #59677e; font-size: 1rem; margin-top: .45rem; margin-bottom: .8rem; }
 .hl-note { display: inline-block; color: #286c68; background: #e5f6f3; border: 1px solid #ccebe6; border-radius: 999px; padding: .38rem .75rem; font-size: .82rem; font-weight: 750; }
 .hl-page-kicker { color: #806be9; font-size: .73rem; font-weight: 850; letter-spacing: .13em; text-transform: uppercase; margin-bottom: .28rem; }
-.hl-page-title { color: var(--text-color); font-size: clamp(1.55rem,2.5vw,2rem); line-height: 1.2; font-weight: 850; letter-spacing: -.04em; margin: 0 0 .35rem; }
-.hl-page-sub { color: var(--text-color); opacity: .68; font-size: .96rem; margin-bottom: 1.1rem; }
-.hl-panel { background: var(--secondary-background-color, #fff); border: 1px solid var(--border-color, rgba(120,130,150,.2)); border-radius: 17px; padding: 1.1rem 1.2rem; box-shadow: 0 6px 20px rgba(31,48,78,.045); }
-.hl-panel-title { color: var(--text-color); font-weight: 800; font-size: 1rem; margin-bottom: .25rem; }
-.hl-muted { color: var(--text-color); opacity: .68; font-size: .86rem; }
+.hl-page-title { color: #18243b; font-size: clamp(1.55rem,2.5vw,2rem); line-height: 1.2; font-weight: 850; letter-spacing: -.04em; margin: 0 0 .35rem; }
+.hl-page-sub { color: #18243b; opacity: .68; font-size: .96rem; margin-bottom: 1.1rem; }
+.hl-panel { background: #ffffff; border: 1px solid #e1e6f0; border-radius: 17px; padding: 1.1rem 1.2rem; box-shadow: 0 6px 20px rgba(31,48,78,.045); }
+.hl-panel-title { color: #18243b; font-weight: 800; font-size: 1rem; margin-bottom: .25rem; }
+.hl-muted { color: #18243b; opacity: .68; font-size: .86rem; }
 .hl-login-panel { background: linear-gradient(145deg,#111e3c,#263b69 70%,#443b91); border-radius: 22px; padding: 2rem; min-height: 430px; color: white; }
 .hl-login-panel h1,.hl-login-panel h2,.hl-login-panel p,.hl-login-panel li { color: white !important; }
 .hl-login-panel h1 { font-size: clamp(2rem,4vw,3.1rem); line-height: 1.08; letter-spacing: -.045em; }
 .hl-login-chip { display:inline-block; padding:.42rem .7rem; border-radius:999px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18); margin:.25rem .25rem .25rem 0; font-size:.8rem; }
 @media (max-width: 850px) { .block-container { padding-left: 1rem; padding-right: 1rem; } .hl-hero { padding: 1rem; } .hl-login-panel { min-height: auto; margin-bottom: 1rem; } }
+
+.hl-decision-chart { background:#ffffff; border:1px solid #e1e6f0; border-radius:16px; padding:1.2rem 1.35rem; margin-top:.6rem; box-shadow:0 6px 20px rgba(31,48,78,.045); }
+.hl-chart-row { display:grid; grid-template-columns:180px minmax(100px,1fr) 42px; gap:14px; align-items:center; margin:.9rem 0; }
+.hl-chart-label { color:#475569; font-weight:650; font-size:.9rem; }
+.hl-chart-track { height:13px; border-radius:999px; background:#edf0f7; overflow:hidden; }
+.hl-chart-fill { height:100%; border-radius:999px; min-width:0; }
+.hl-chart-value { color:#18243b; font-weight:800; text-align:right; }
+[data-testid="stSidebar"] .stButton > button { min-height:3rem !important; }
+@media (max-width:650px) { .hl-chart-row { grid-template-columns:120px minmax(50px,1fr) 30px; gap:8px; } }
 </style>
 """, unsafe_allow_html=True)
 
@@ -587,22 +607,16 @@ def candidate_page(user):
         k2.metric("Under review", pending)
         k3.metric("Shortlisted", shortlisted)
         k4.metric("Rejected", rejected)
-        left,right = st.columns([1.25,1], gap="large")
-        with left:
-            st.markdown('<div class="hl-panel"><div class="hl-panel-title">Your next opportunity starts here</div><div class="hl-muted">Add a role, upload your resume and understand how its text aligns with the job requirements.</div></div>', unsafe_allow_html=True)
-            st.markdown("### Make your next move")
-            st.write("Keep your applications organised and check updates shared by the HR team.")
-            if st.button("＋  Add job details and apply", type="primary", use_container_width=True):
-                st.session_state["candidate_sidebar_navigation"] = "Job Details & Apply"
-                st.rerun()
-        with right:
-            st.markdown('<div class="hl-panel"><div class="hl-panel-title">Quick actions</div><div class="hl-muted">Jump straight to your workspace</div></div>', unsafe_allow_html=True)
-            if st.button("View my applications", use_container_width=True):
-                st.session_state["candidate_sidebar_navigation"] = "My Applications"
-                st.rerun()
-            if st.button("Submit a new resume", use_container_width=True):
-                st.session_state["candidate_sidebar_navigation"] = "Job Details & Apply"
-                st.rerun()
+        st.markdown(
+            '<div class="hl-panel"><div class="hl-panel-title">Your next opportunity starts here</div>'
+            '<div class="hl-muted">Add a role, upload your resume and understand how its text aligns with the job requirements.</div></div>',
+            unsafe_allow_html=True
+        )
+        st.markdown("### Make your next move")
+        st.write("Keep your applications organised and check updates shared by the HR team.")
+        if st.button("＋  Add job details and apply", type="primary", use_container_width=False):
+            st.session_state["candidate_sidebar_navigation"] = "Job Details & Apply"
+            st.rerun()
         st.markdown("### Recent applications")
         if apps:
             for app in apps[:3]:
@@ -1365,24 +1379,28 @@ def hr_page(user):
         k4.metric("Decisions published", published)
 
         st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-        left, right = st.columns([1.35, 1])
-        with left:
-            st.markdown('<div class="hl-panel"><div class="hl-panel-title">Application decision overview</div><div class="hl-muted">Current HR decisions across stored resume records</div></div>', unsafe_allow_html=True)
-            st.bar_chart({"Applications": {"Awaiting decision": pending, "Shortlisted": shortlisted, "On hold": on_hold, "Rejected": rejected}}, height=260)
-        with right:
-            st.markdown('<div class="hl-panel"><div class="hl-panel-title">Quick actions</div><div class="hl-muted">Continue with the next recruitment task</div></div>', unsafe_allow_html=True)
-            if st.button("＋  Create job & run matching", use_container_width=True, type="primary"):
-                st.session_state["hr_sidebar_navigation"] = "Job & Matching"
-                st.rerun()
-            if st.button("＋  Upload resumes", use_container_width=True):
-                st.session_state["hr_sidebar_navigation"] = "Upload Resumes"
-                st.rerun()
-            if st.button("⌕  Search an application", use_container_width=True):
-                st.session_state["hr_sidebar_navigation"] = "Search Application ID"
-                st.rerun()
-            if st.button("✓  Review HR decisions", use_container_width=True):
-                st.session_state["hr_sidebar_navigation"] = "HR Decisions"
-                st.rerun()
+        st.markdown(
+            '<div class="hl-panel"><div class="hl-panel-title">Application decision overview</div>'
+            '<div class="hl-muted">Current HR decisions across stored resume records</div></div>',
+            unsafe_allow_html=True
+        )
+        decision_rows = [
+            ("Awaiting decision", pending, "#64748b"),
+            ("Shortlisted", shortlisted, "#16a085"),
+            ("On hold", on_hold, "#d99b25"),
+            ("Rejected", rejected, "#e05a67"),
+        ]
+        max_value = max([value for _, value, _ in decision_rows] + [1])
+        chart_html = '<div class="hl-decision-chart">'
+        for label, value, color in decision_rows:
+            width = (value / max_value) * 100
+            chart_html += (
+                '<div class="hl-chart-row"><div class="hl-chart-label">' + label + '</div>'
+                '<div class="hl-chart-track"><div class="hl-chart-fill" style="width:' + str(width) +
+                '%;background:' + color + '"></div></div><div class="hl-chart-value">' + str(value) + '</div></div>'
+            )
+        chart_html += '</div>'
+        st.markdown(chart_html, unsafe_allow_html=True)
 
         st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
         st.markdown("### Recent application records")
