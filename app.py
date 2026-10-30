@@ -1338,19 +1338,6 @@ def job_match_decisions_page():
                         else:
                             st.info("No HR decision saved yet.")
 
-                        with st.expander("Review resume and matched skills"):
-                            resume = get_job_match_resume(match["match_id"])
-                            if resume:
-                                st.download_button(
-                                    "Download original resume",
-                                    data=resume["resume_pdf"],
-                                    file_name=resume.get("resume_filename") or f"{app_id}.pdf",
-                                    mime="application/pdf",
-                                    key=f"decision_download_{match['match_id']}"
-                                )
-                            st.write("**Matched skills:**", match.get("matched_skills") or "None detected")
-                            st.write("**Skills not detected:**", match.get("missing_skills") or "None detected")
-
                         with st.form(f"decision_page_form_{match['match_id']}"):
                             options = ["Shortlist", "Reject", "Hold"]
                             previous = match.get("hr_decision")
