@@ -164,6 +164,46 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# HireLens visual refresh: clean light workspace, deep-navy navigation, and
+# restrained violet/teal accents. This layer intentionally leaves app logic intact.
+st.markdown("""
+<style>
+:root { --hl-ink:#17243b; --hl-muted:#68758b; --hl-line:#e5eaf2; --hl-violet:#6957d8; --hl-teal:#159b91; }
+.stApp { background:#f5f7fb !important; color:var(--hl-ink) !important; }
+[data-testid="stHeader"] { background:rgba(245,247,251,.92) !important; }
+.block-container { max-width:1440px; padding-top:1.15rem; padding-bottom:3rem; }
+[data-testid="stSidebar"] { background:linear-gradient(180deg,#17243b 0%,#202e49 100%) !important; }
+[data-testid="stSidebar"] * { color:#edf2fb !important; }
+[data-testid="stSidebar"] [data-testid="stRadio"] label { padding:.48rem .55rem; border-radius:9px; }
+[data-testid="stSidebar"] [data-testid="stRadio"] label:hover { background:rgba(255,255,255,.09); }
+[data-testid="stSidebar"] button { border-color:rgba(255,255,255,.2) !important; }
+[data-testid="stMetric"] { background:#fff !important; border:1px solid var(--hl-line) !important; border-radius:16px !important; padding:1rem 1.1rem !important; box-shadow:0 5px 18px rgba(31,48,78,.045); }
+[data-testid="stMetricLabel"] { color:#69778d !important; font-weight:650 !important; }
+[data-testid="stMetricValue"] { color:#17243b !important; font-weight:800 !important; }
+[data-testid="stTabs"] [role="tablist"] { gap:.55rem; border-bottom:1px solid var(--hl-line); }
+[data-testid="stTabs"] button[role="tab"] { color:#526078 !important; padding:.7rem 1rem; font-weight:650; }
+[data-testid="stTabs"] button[role="tab"][aria-selected="true"] { color:var(--hl-violet) !important; border-bottom:3px solid var(--hl-violet) !important; }
+.stButton>button, [data-testid="stFormSubmitButton"]>button { border-radius:10px !important; min-height:2.65rem; font-weight:700; border:1px solid #dce2ed; }
+.stButton>button[kind="primary"], [data-testid="stFormSubmitButton"]>button[kind="primary"] { background:linear-gradient(100deg,#6554d7,#806be9) !important; color:#fff !important; border:0 !important; }
+.stTextInput input, .stTextArea textarea, .stNumberInput input, [data-baseweb="input"] input, [data-baseweb="textarea"] textarea { background:#fff !important; color:#17243b !important; -webkit-text-fill-color:#17243b !important; border-color:#dce3ee !important; border-radius:9px !important; }
+.stTextInput label, .stTextArea label, .stSelectbox label, .stRadio label, .stFileUploader label, .stNumberInput label { color:#34435c !important; font-weight:600 !important; }
+[data-testid="stExpander"] { background:#fff; border:1px solid var(--hl-line); border-radius:13px; }
+[data-testid="stAlert"] { border-radius:12px; }
+.hl-hero { padding:1.25rem 1.55rem; margin:.15rem 0 1.15rem; border-radius:18px; border:1px solid #e4e7f2; background:linear-gradient(110deg,#fff 0%,#f0efff 58%,#eaf8f7 100%); box-shadow:0 6px 22px rgba(31,48,78,.045); }
+.hl-brand { color:#17243b; font-size:clamp(1.9rem,3.5vw,2.55rem); line-height:1.08; font-weight:850; letter-spacing:-.045em; }
+.hl-brand span { color:#6b59dc; }
+.hl-subtitle { color:#59677e; font-size:1rem; margin-top:.45rem; margin-bottom:.8rem; }
+.hl-note { display:inline-block; color:#286c68; background:#e5f6f3; border:1px solid #ccebe6; border-radius:999px; padding:.36rem .72rem; font-size:.82rem; font-weight:700; }
+.hl-page-kicker { color:#6c5bd5; font-size:.76rem; font-weight:800; letter-spacing:.11em; text-transform:uppercase; margin-bottom:.25rem; }
+.hl-page-title { color:#17243b; font-size:1.75rem; line-height:1.2; font-weight:820; letter-spacing:-.035em; margin:0 0 .35rem; }
+.hl-page-sub { color:#718096; font-size:.96rem; margin-bottom:1.1rem; }
+.hl-panel { background:#fff; border:1px solid #e5eaf2; border-radius:16px; padding:1.05rem 1.2rem; box-shadow:0 5px 18px rgba(31,48,78,.035); }
+.hl-panel-title { color:#24334c; font-weight:750; font-size:1rem; margin-bottom:.25rem; }
+.hl-muted { color:#718096; font-size:.88rem; }
+@media (max-width: 800px) { .block-container { padding-left:1rem; padding-right:1rem; } .hl-hero { padding:1rem; } }
+</style>
+""", unsafe_allow_html=True)
+
 
 # --------------------------------------------------
 # BRANDING AND COMMON HELPERS
@@ -173,12 +213,8 @@ def brand():
     st.markdown("""
     <div class="hl-hero">
       <div class="hl-brand">🔎 Hire<span>Lens</span></div>
-      <div class="hl-subtitle">
-        An Explainable AI Hiring Decision Analysis Dashboard
-      </div>
-      <span class="hl-note">
-        Human-led decisions · Explainable analysis · Responsible AI
-      </span>
+      <div class="hl-subtitle">An Explainable AI Hiring Decision Analysis Dashboard</div>
+      <span class="hl-note">Human-led decisions&nbsp; · &nbsp;Explainable analysis&nbsp; · &nbsp;Responsible AI</span>
     </div>
     """, unsafe_allow_html=True)
 
@@ -676,7 +712,7 @@ def candidate_page(user):
     st.sidebar.title("Candidate Portal")
     st.sidebar.write(f"Signed in as **{user['full_name']}**")
     logout()
-    st.title("Your Candidate Dashboard")
+    st.markdown('<div class="hl-page-kicker">Candidate workspace</div><div class="hl-page-title">Your dashboard</div><div class="hl-page-sub">Apply for a role, review your submissions, and check updates shared by HR.</div>', unsafe_allow_html=True)
 
     upload_tab, apps_tab = st.tabs(["Upload Resume", "My Applications"])
 
@@ -1412,23 +1448,49 @@ def hr_page(user):
     )
     logout()
 
-    st.title("HR / Recruiter Dashboard")
+    st.markdown('<div class="hl-page-kicker">HR workspace</div><div class="hl-page-title">Recruiter dashboard</div><div class="hl-page-sub">Manage roles, compare resume alignment, and communicate human decisions.</div>', unsafe_allow_html=True)
 
     if section == "Overview":
         rows = get_records()
         jobs = get_jobs()
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Stored resume records", len(rows))
-        c2.metric("Saved jobs", len(jobs))
-        c3.metric(
-            "Awaiting decision",
-            sum(1 for r in rows if not r["hr_decision"])
-        )
-        st.info(
-            "AI recommendations are advisory. HR retains the final decision. "
-            "Use Job & Matching to match saved resumes against a job, then "
-            "use HR Decisions to save and publish human decisions."
-        )
+        pending = sum(1 for r in rows if not r.get("hr_decision"))
+        shortlisted = sum(1 for r in rows if r.get("hr_decision") == "Shortlist")
+        rejected = sum(1 for r in rows if r.get("hr_decision") == "Reject")
+        on_hold = sum(1 for r in rows if r.get("hr_decision") == "Hold")
+        published = sum(1 for r in rows if r.get("published"))
+
+        st.markdown("""<div class="hl-page-kicker">Recruitment workspace</div>
+        <div class="hl-page-title">Your hiring overview</div>
+        <div class="hl-page-sub">Here is a snapshot of your hiring activity and application pipeline.</div>""", unsafe_allow_html=True)
+
+        k1, k2, k3, k4 = st.columns(4)
+        k1.metric("Resume records", len(rows), help="All candidate and HR-uploaded resume records")
+        k2.metric("Active job posts", len(jobs))
+        k3.metric("Awaiting decision", pending)
+        k4.metric("Decisions published", published)
+
+        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+        left, right = st.columns([1.35, 1])
+        with left:
+            st.markdown('<div class="hl-panel"><div class="hl-panel-title">Application decision overview</div><div class="hl-muted">Current HR decisions across stored resume records</div></div>', unsafe_allow_html=True)
+            st.bar_chart({"Applications": {"Awaiting decision": pending, "Shortlisted": shortlisted, "On hold": on_hold, "Rejected": rejected}}, height=260)
+        with right:
+            st.markdown('<div class="hl-panel"><div class="hl-panel-title">Quick actions</div><div class="hl-muted">Continue with the next recruitment task</div></div>', unsafe_allow_html=True)
+            if st.button("＋  Create job & run matching", use_container_width=True, type="primary"):
+                st.session_state["hr_sidebar_navigation"] = "Job & Matching"
+                st.rerun()
+            if st.button("＋  Upload resumes", use_container_width=True):
+                st.session_state["hr_sidebar_navigation"] = "Upload Resumes"
+                st.rerun()
+            if st.button("⌕  Search an application", use_container_width=True):
+                st.session_state["hr_sidebar_navigation"] = "Search Application ID"
+                st.rerun()
+            if st.button("✓  Review HR decisions", use_container_width=True):
+                st.session_state["hr_sidebar_navigation"] = "HR Decisions"
+                st.rerun()
+
+        st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
+        st.markdown('<div class="hl-panel"><div class="hl-panel-title">Responsible AI reminder</div><div class="hl-muted">HireLens provides an explainable, text-based comparison to support review. A skill not detected in a resume does not prove the candidate lacks it. AI scores and recommendations are advisory only; the authorized HR reviewer makes and publishes the final decision.</div></div>', unsafe_allow_html=True)
 
     elif section == "Job & Matching":
         job_requirements_tab(user)
